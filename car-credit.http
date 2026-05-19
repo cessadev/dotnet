@@ -1,0 +1,89 @@
+# ============================================================
+# Car Credit API — REST Client Documentation
+# Compatible with VS Code REST Client extension
+# Base URL: http://localhost:5099
+# ============================================================
+
+@baseUrl = http://localhost:5099
+
+
+# ============================================================
+# CUSTOMERS
+# ============================================================
+
+### Get all customers
+GET {{baseUrl}}/api/customer
+Accept: application/json
+
+### Get customer by ID
+GET {{baseUrl}}/api/customer/1
+Accept: application/json
+
+### Create customer
+POST {{baseUrl}}/api/customer
+Content-Type: application/json
+
+{
+  "name": "Carlos",
+  "lastname": "Ruiz",
+  "age": 35,
+  "address": "Calle 50 #23-10, Barranquilla"
+}
+
+### Delete customer
+DELETE {{baseUrl}}/api/customer/1
+
+
+# ============================================================
+# CREDITS
+# ============================================================
+
+### Get all credits
+GET {{baseUrl}}/api/credit
+Accept: application/json
+
+### Get credit by ID (includes customer)
+GET {{baseUrl}}/api/credit/5
+Accept: application/json
+
+### Create credit (auto-generates fees)
+# Requires an existing customerId
+POST {{baseUrl}}/api/credit
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "vehicle": "Volvo FH16",
+  "valueCredit": 36000000,
+  "fee": 3
+}
+
+### Delete credit (cascades to fees)
+DELETE {{baseUrl}}/api/credit/5
+
+
+# ============================================================
+# FEES
+# ============================================================
+
+### Get fees by credit ID (EF Core)
+# Returns all installments for a given credit
+GET {{baseUrl}}/api/fee/credit/5
+Accept: application/json
+
+### Get credit summary by credit ID (Dapper)
+# Returns aggregated data: total fees, paid, owed, amounts
+GET {{baseUrl}}/api/fee/summary/5
+Accept: application/json
+
+### Get overdue fees (Dapper)
+# Returns unpaid fees past their expiration date
+GET {{baseUrl}}/api/fee/overdue
+Accept: application/json
+
+### Register fee payment
+# Body: decimal value paid
+PATCH {{baseUrl}}/api/fee/4/pay
+Content-Type: application/json
+
+12000000
