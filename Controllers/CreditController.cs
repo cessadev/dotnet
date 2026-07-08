@@ -25,6 +25,11 @@ public class CreditController : ControllerBase
         return credit is null ? NotFound() : Ok(credit);
     }
 
+    /// <summary>
+    /// Create a new credit and automatically generate its repayment schedule.
+    /// </summary>
+    /// <param name="request">Details of the loan to be created.</param>
+    /// <returns>Credit created.</returns>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCreditRequest request)
     {
@@ -33,17 +38,27 @@ public class CreditController : ControllerBase
             var credit = await _creditService.CreateWithFees(request);
             return CreatedAtAction(nameof(GetById), new { creditId = credit.Id }, credit);
         }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message); // 400
+        }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { ex.Message });
+            return NotFound(new { ex.Message }); // 404
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{creditId}")]
     public async Task<IActionResult> Delete(int creditId)
     {
-        var deleted = await _creditService.Delete(creditId);
-        return deleted ? NoContent() : NotFound();
+        try
+        {
+            var deleted = await _creditService.Delete(creditId);
+            return deleted ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
     }
-
 }

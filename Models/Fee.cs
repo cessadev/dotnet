@@ -20,3 +20,7 @@ public class Fee
 
     public Credit Credit { get; set; } = null!;
 }
+
+public record RegisterPaymentRequest (
+    decimal Amount
+);

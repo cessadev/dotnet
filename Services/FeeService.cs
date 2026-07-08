@@ -24,12 +24,12 @@ public class FeeService : IFeeService
             .OrderBy(F => F.NumberFee)
             .ToListAsync();
     
-    public async Task<Fee?> RegisterPayment(int feeId, decimal valuePaid)
+    public async Task<Fee?> RegisterPayment(int feeId, decimal amount)
     {
         var fee = await _db.Fees.FindAsync(feeId);
         if (fee is null) return null;
 
-        fee.ValueFeePaid = valuePaid;
+        fee.ValueFeePaid = amount;
         fee.DatePayment = DateTime.UtcNow;
         fee.Paid = true;
 

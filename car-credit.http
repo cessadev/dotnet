@@ -16,7 +16,7 @@ GET {{baseUrl}}/api/customer
 Accept: application/json
 
 ### Get customer by ID
-GET {{baseUrl}}/api/customer/1
+GET {{baseUrl}}/api/customer/{customerId}
 Accept: application/json
 
 ### Create customer
@@ -31,7 +31,7 @@ Content-Type: application/json
 }
 
 ### Delete customer
-DELETE {{baseUrl}}/api/customer/1
+DELETE {{baseUrl}}/api/customer/{customerId}
 
 
 # ============================================================
@@ -43,7 +43,7 @@ GET {{baseUrl}}/api/credit
 Accept: application/json
 
 ### Get credit by ID (includes customer)
-GET {{baseUrl}}/api/credit/5
+GET {{baseUrl}}/api/credit/{creditId}
 Accept: application/json
 
 ### Create credit (auto-generates fees)
@@ -59,7 +59,7 @@ Content-Type: application/json
 }
 
 ### Delete credit (cascades to fees)
-DELETE {{baseUrl}}/api/credit/5
+DELETE {{baseUrl}}/api/credit/{creditId}
 
 
 # ============================================================
@@ -68,12 +68,12 @@ DELETE {{baseUrl}}/api/credit/5
 
 ### Get fees by credit ID (EF Core)
 # Returns all installments for a given credit
-GET {{baseUrl}}/api/fee/credit/5
+GET {{baseUrl}}/api/fee/credit/{creditId}
 Accept: application/json
 
 ### Get credit summary by credit ID (Dapper)
 # Returns aggregated data: total fees, paid, owed, amounts
-GET {{baseUrl}}/api/fee/summary/5
+GET {{baseUrl}}/api/fee/{creditId}/summary
 Accept: application/json
 
 ### Get overdue fees (Dapper)
@@ -83,7 +83,9 @@ Accept: application/json
 
 ### Register fee payment
 # Body: decimal value paid
-PATCH {{baseUrl}}/api/fee/4/pay
+PATCH {{baseUrl}}/api/fee/{feeId}/pay
 Content-Type: application/json
 
-12000000
+{
+  "Amount": 3333333.33
+}

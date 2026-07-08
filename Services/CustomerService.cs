@@ -16,7 +16,7 @@ public class CustomerService : ICustomerService
 
     public async Task<IEnumerable<Customer>> GetAll() => await _db.Customers.ToListAsync();
 
-    public async Task<Customer?> GetById(int customerId) => await _db.Customers.FindAsync();
+    public async Task<Customer?> GetById(int customerId) => await _db.Customers.FindAsync(customerId);
 
     public async Task<Customer> Create(CreateCustomerRequest request)
     {

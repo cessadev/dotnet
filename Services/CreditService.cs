@@ -16,9 +16,12 @@ public class CreditService : ICreditService
 
     public async Task<Credit> CreateWithFees(CreateCreditRequest request)
     {
+        if (request.Fee <= 0)
+            throw new ArgumentException("The number of installments must be greater than zero.");
+
         var customerExists = await _db.Customers.AnyAsync(c => c.Id == request.CustomerId);
         if (!customerExists)
-            throw new KeyNotFoundException($"Customer {request.CustomerId} not found");
+            throw new KeyNotFoundException($"Customer {request.CustomerId} not found.");
 
         var credit = new Credit
         {
@@ -31,16 +34,34 @@ public class CreditService : ICreditService
         _db.Credits.Add(credit);
         await _db.SaveChangesAsync();
 
-        var feeValue = Math.Round(request.ValueCredit / request.Fee, 2);
-        var fees = Enumerable.Range(1, request.Fee)
-            .Select(i => new Fee
+        decimal installment = Math.Floor((request.ValueCredit / request.Fee) * 100) / 100;
+        decimal remaining = request.ValueCredit;
+
+        var fees = new List<Fee>();
+
+        for (int i = 1; i <= request.Fee; i++)
+        {
+            decimal value;
+
+            if (i == request.Fee)
             {
-                CreditId = credit.Id,
-                NumberFee = i,
-                ValueFee = feeValue,
-                DateExpiration = DateTime.UtcNow.AddMonths(i)
-            })
-            .ToList();
+                // The last installment receives the remaining funds
+                value = remaining;
+            }
+            else
+            {
+                value = installment;
+                remaining -= value;
+            }
+
+            fees.Add(new Fee
+            {
+               CreditId = credit.Id,
+               NumberFee = i,
+               ValueFee = value,
+               DateExpiration = DateTime.UtcNow.AddMonths(i) 
+            });
+        }
         
         _db.Fees.AddRange(fees);
         await _db.SaveChangesAsync();
@@ -52,6 +73,13 @@ public class CreditService : ICreditService
     {
         var credit = await _db.Credits.FindAsync(creditId);
         if (credit is null) return false;
+
+        bool allPaid = await _db.Fees
+            .Where(f => f.CreditId == creditId)
+            .AllAsync(f => f.Paid == true);
+
+        if (!allPaid)
+            throw new InvalidOperationException("The credit cannot be deleted because it has unpaid fees.");
 
         _db.Credits.Remove(credit);
         await _db.SaveChangesAsync();
