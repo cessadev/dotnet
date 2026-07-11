@@ -35,7 +35,7 @@ public class CreditController : ControllerBase
     {
         try
         {
-            var credit = await _creditService.CreateWithFees(request);
+            var credit = await _creditService.Create(request);
             return CreatedAtAction(nameof(GetById), new { creditId = credit.Id }, credit);
         }
         catch (ArgumentException ex)

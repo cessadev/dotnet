@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using CarCredit.Models;
+using CarCredit.Domain.Entities;
 
-namespace CarCredit.Data;
+namespace CarCredit.Infrastructure.Persistence;
 
 public class AppDbContext : DbContext
 {

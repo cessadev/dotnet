@@ -1,40 +1,18 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
-using CarCredit.Models;
-using CarCredit.Interfaces;
-using CarCredit.Data;
-using Microsoft.EntityFrameworkCore;
+using CarCredit.Application.Interfaces;
 
-namespace CarCredit.Services;
+namespace CarCredit.Infrastructure.Persistence.Repositories;
 
-public class FeeService : IFeeService
+class FeeRepository : IFeeRepository
 {
     private readonly AppDbContext _db;
     private readonly string _connectionString;
-    
-    public FeeService(AppDbContext db, IConfiguration config)
+
+    public FeeRepository(AppDbContext _database, IConfiguration config)
     {
-        _db = db;
+        _db = _database;
         _connectionString = config.GetConnectionString("DefaultConnection")!;
-    }
-
-    public async Task<IEnumerable<Fee>> GetByCreditId(int creditId) 
-        => await _db.Fees
-            .Where(f => f.CreditId == creditId)
-            .OrderBy(F => F.NumberFee)
-            .ToListAsync();
-    
-    public async Task<Fee?> RegisterPayment(int feeId, decimal amount)
-    {
-        var fee = await _db.Fees.FindAsync(feeId);
-        if (fee is null) return null;
-
-        fee.ValueFeePaid = amount;
-        fee.DatePayment = DateTime.UtcNow;
-        fee.Paid = true;
-
-        await _db.SaveChangesAsync();
-        return fee;
     }
 
     public async Task<IEnumerable<dynamic>> GetSummary(int creditId)

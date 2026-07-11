@@ -1,6 +1,6 @@
-using CarCredit.Models;
+using CarCredit.Domain.Entities;
 
-namespace CarCredit.Interfaces;
+namespace CarCredit.Application.Interfaces;
 
 public interface IFeeService
 {

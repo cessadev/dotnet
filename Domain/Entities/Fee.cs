@@ -1,17 +1,11 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace CarCredit.Models;
+namespace CarCredit.Domain.Entities;
 
 public class Fee
 {
     public int Id { get; set; }
     public int CreditId { get; set; }
     public int NumberFee { get; set; }
-
-    [Column(TypeName = "decimal(18,2)")]
     public decimal ValueFee { get; set; }
-
-    [Column(TypeName = "decimal(18,2)")]
     public decimal ValueFeePaid { get; set; }
 
     public DateTime DateExpiration { get; set; }
@@ -20,7 +14,3 @@ public class Fee
 
     public Credit Credit { get; set; } = null!;
 }
-
-public record RegisterPaymentRequest (
-    decimal Amount
-);

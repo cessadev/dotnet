@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace CarCredit.Models;
+namespace CarCredit.Domain.Entities;
 
 public class Customer
 {
@@ -11,10 +9,3 @@ public class Customer
     public string Address { get; set; } = string.Empty;
     public DateTime DateCreation { get; set; } = DateTime.UtcNow;
 }
-
-public record CreateCustomerRequest(
-    string Name,
-    string Lastname,
-    int Age,
-    string Address
-);
