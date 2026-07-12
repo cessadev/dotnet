@@ -2,10 +2,12 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 using CarCredit.Application.DTOs;
 using CarCredit.Application.Interfaces;
+using CarCredit.Infrastructure.Persistence;
+using CarCredit.Domain.Entities;
 
 namespace CarCredit.Infrastructure.Persistence.Repositories;
 
-class FeeRepository : IFeeRepository
+public class FeeRepository : IFeeRepository
 {
     private readonly AppDbContext _db;
     private readonly string _connectionString;
