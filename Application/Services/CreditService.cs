@@ -71,14 +71,14 @@ public class CreditService : ICreditService
 
     public async Task<bool> Delete(int creditId)
     {
-        var credit = await _repository.GetByIdWithFees(creditId);
+        var credit = await _repository.GetById(creditId);
         if (credit is null) return false;
 
-        bool allPaid = credit.Fees.All(f => f.Paid);
-
-        if (!allPaid)
+        if (await _repository.HasUnpaidFees(creditId))
+        {
             throw new InvalidOperationException(
                 "The credit cannot be deleted because it has unpaid fees.");
+        }
 
         await _repository.Remove(credit);
         await _repository.SaveChanges();

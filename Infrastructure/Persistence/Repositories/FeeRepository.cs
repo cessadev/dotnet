@@ -1,5 +1,6 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using CarCredit.Application.DTOs;
 using CarCredit.Application.Interfaces;
 using CarCredit.Infrastructure.Persistence;

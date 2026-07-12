@@ -16,13 +16,13 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Fee>()
             .HasOne(c => c.Credit)
             .WithMany()
-            .HasForeignKey(c => c.CreditId)
+            .HasForeignKey(i => i.CreditId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Credit>()
             .HasOne(c => c.Customer)
             .WithMany()
-            .HasForeignKey(c => c.CustomerId)
+            .HasForeignKey(i => i.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

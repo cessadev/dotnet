@@ -38,6 +38,12 @@ public class CustomerService : ICustomerService
         var customer = await _repository.GetById(customerId);
         if (customer is null) return false;
 
+        if (await _repository.HasUnpaidFees(customerId))
+        {
+            throw new InvalidOperationException(
+                "The customer cannot be deleted because at least one of their loans has outstanding payments.");
+        }
+
         await _repository.Remove(customer);
         await _repository.SaveChanges();
 
