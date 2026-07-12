@@ -1,5 +1,6 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
+using CarCredit.Application.DTOs;
 using CarCredit.Application.Interfaces;
 
 namespace CarCredit.Infrastructure.Persistence.Repositories;
@@ -15,7 +16,17 @@ class FeeRepository : IFeeRepository
         _connectionString = config.GetConnectionString("DefaultConnection")!;
     }
 
-    public async Task<IEnumerable<dynamic>> GetSummary(int creditId)
+    public async Task<IEnumerable<Fee>> GetByCreditId(int creditId)
+        => await _db.Fees
+            .Where(f => f.CreditId == creditId)
+            .OrderBy(f => f.NumberFee)
+            .ToListAsync();
+
+    public async Task<Fee?> GetById(int feeId) => await _db.Fees.FindAsync(feeId);
+
+    public async Task SaveChanges() => await _db.SaveChangesAsync();
+
+    public async Task<CreditSummaryResponse?> GetSummary(int creditId)
     {
         using var connection = new SqlConnection(_connectionString);
 
@@ -37,10 +48,12 @@ class FeeRepository : IFeeRepository
             GROUP BY c.Id, cu.Name, cu.Lastname, c.Vehicle, c.Fee
             """;
 
-        return await connection.QueryAsync(sql, new { CreditId = creditId });
+        return await connection.QuerySingleOrDefaultAsync<CreditSummaryResponse>(
+            sql,
+            new { CreditId = creditId });
     }
 
-    public async Task<IEnumerable<dynamic>> GetOverdue()
+    public async Task<IEnumerable<OverdueFeeResponse>> GetOverdue()
     {
         using var connection = new SqlConnection(_connectionString);
 
@@ -61,6 +74,6 @@ class FeeRepository : IFeeRepository
             ORDER BY DaysOverdue DESC
             """;
         
-        return await connection.QueryAsync(sql);
+        return await connection.QueryAsync<OverdueFeeResponse>(sql);
     }
 }

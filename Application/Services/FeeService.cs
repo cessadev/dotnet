@@ -29,7 +29,7 @@ public class FeeService : IFeeService
         return fee;
     }
 
-    public async Task<IEnumerable<CreditSummaryResponse>> GetSummary(int creditId) => await _repository.GetSummary(creditId);
+    public async Task<CreditSummaryResponse?> GetSummary(int creditId) => await _repository.GetSummary(creditId);
 
     public async Task<IEnumerable<OverdueFeeResponse>> GetOverdue() => await _repository.GetOverdue();
 }
