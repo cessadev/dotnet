@@ -9,7 +9,7 @@ public class CustomerRepository : ICustomerRepository
 {
     private readonly AppDbContext _db;
 
-    public CustomerRepository(AppDbContext _database, IConfiguration config)
+    public CustomerRepository(AppDbContext _database)
     {
         _db = _database;
     }

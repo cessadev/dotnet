@@ -21,7 +21,7 @@ public class FeeController : ControllerBase
     public async Task<ActionResult<IEnumerable<FeeResponse>>> GetFeesByCredit(int creditId)
     {
         IEnumerable<FeeResponse> fees = await _feeService.GetByCreditId(creditId);
-        return fees is null ? NotFound() : Ok(fees);
+        return Ok(fees);
     }
 
     [HttpGet("{creditId}/summary")]

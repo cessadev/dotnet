@@ -9,7 +9,7 @@ public class CreditRepository : ICreditRepository
 {
     private readonly AppDbContext _db;
 
-    public CreditRepository(AppDbContext _database, IConfiguration config)
+    public CreditRepository(AppDbContext _database)
     {
         _db = _database;
     }
