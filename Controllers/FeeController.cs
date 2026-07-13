@@ -18,28 +18,28 @@ public class FeeController : ControllerBase
     }
 
     [HttpGet("credit/{creditId}")]
-    public async Task<IActionResult<IEnumerable<FeeResponse>>> GetByCredit(int creditId)
+    public async Task<ActionResult<IEnumerable<FeeResponse>>> GetByCredit(int creditId)
     {
         IEnumerable<FeeResponse> fees = await _feeService.GetByCreditId(creditId);
         return fees is null ? NotFound() : Ok(fees);
     }
 
     [HttpGet("{creditId}/summary")]
-    public async Task<IActionResult<CreditSummary>> GetSummaryByCredit(int creditId)
+    public async Task<ActionResult<CreditSummary>> GetSummaryByCredit(int creditId)
     {
         CreditSummary summary = await _feeService.GetSummary(creditId);
         return summary is null ? NotFound() : Ok(summary);
     }
 
     [HttpGet("overdue")]
-    public async Task<IActionResult<IEnumerable<OverdueFee>>> GetOverdueFees()
+    public async Task<ActionResult<IEnumerable<OverdueFee>>> GetOverdueFees()
     {
         IEnumerable<OverdueFee> overdueFees = await _feeService.GetOverdue();
         return overdueFees is null ? NotFound() : Ok(overdueFees);
     }
 
     [HttpPatch("{feeId}/pay")]
-    public async Task<IActionResult<FeeResponse>> RegisterPayment(
+    public async Task<ActionResult<FeeResponse>> RegisterPayment(
         int feeId, 
         [FromBody] RegisterPaymentRequest request)
     {

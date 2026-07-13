@@ -17,10 +17,10 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult<IEnumerable<CustomerResponse>>> GetAll() => Ok(await _customerService.GetAll());
+    public async Task<ActionResult<IEnumerable<CustomerResponse>>> GetAll() => Ok(await _customerService.GetAll());
 
     [HttpGet("{customerId}")]
-    public async Task<IActionResult<CustomerResponse>> GetById(int customerId)
+    public async Task<ActionResult<CustomerResponse>> GetById(int customerId)
     {
         CustomerResponse customer = await _customerService.GetById(customerId);
         return customer is null ? NotFound() : Ok(customer);

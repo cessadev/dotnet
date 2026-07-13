@@ -17,10 +17,10 @@ public class CreditController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult<IEnumerable<CreditResponse>>> GetAllCredits() => Ok(await _creditService.GetAll());
+    public async Task<ActionResult<IEnumerable<CreditResponse>>> GetAllCredits() => Ok(await _creditService.GetAll());
 
     [HttpGet("{creditId}")]
-    public async Task<IActionResult<CreditResponse>> GetById(int creditId)
+    public async Task<ActionResult<CreditResponse>> GetById(int creditId)
     {
         CreditResponse credit = await _creditService.GetById(creditId);
         return credit is null ? NotFound() : Ok(credit);

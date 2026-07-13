@@ -61,8 +61,8 @@ public class CreditService : ICreditService
             });
         }
         
-        _repository.Add(credit);
-        _repository.AddFees(fees);
+        await _repository.Add(credit);
+        await _repository.AddFees(fees);
         await _repository.SaveChanges();
 
         return new CreditResponse(

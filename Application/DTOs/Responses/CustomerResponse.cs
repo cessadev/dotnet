@@ -3,7 +3,7 @@ namespace CarCredit.Application.DTOs.Responses;
 public record CustomerResponse (
     int Id,
     string Name,
-    string LastName,
+    string Lastname,
     int Age,
     string Address
 );

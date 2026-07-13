@@ -21,7 +21,7 @@ public class CustomerService : ICustomerService
         return customers.Select(c => new CustomerResponse(
             c.Id,
             c.Name,
-            c.LastName,
+            c.Lastname,
             c.Age,
             c.Address
         ));
@@ -29,12 +29,12 @@ public class CustomerService : ICustomerService
 
     public async Task<CustomerResponse?> GetById(int customerId)
     {
-        CustomerResponse customer = await _repository.GetById(customerId);
+        Customer customer = await _repository.GetById(customerId);
         
         return customer is null ? null : new CustomerResponse(
             customer.Id,
             customer.Name,
-            customer.LastName,
+            customer.Lastname,
             customer.Age,
             customer.Address
         );
