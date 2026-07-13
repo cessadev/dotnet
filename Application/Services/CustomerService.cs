@@ -29,7 +29,7 @@ public class CustomerService : ICustomerService
 
     public async Task<CustomerResponse?> GetById(int customerId)
     {
-        Customer customer = await _repository.GetById(customerId);
+        Customer? customer = await _repository.GetById(customerId);
         
         return customer is null ? null : new CustomerResponse(
             customer.Id,
@@ -50,7 +50,7 @@ public class CustomerService : ICustomerService
             Address = request.Address
         };
 
-        _repository.Add(customer);
+        await _repository.Add(customer);
         await _repository.SaveChanges();
 
         return new CustomerResponse(
@@ -64,7 +64,7 @@ public class CustomerService : ICustomerService
 
     public async Task<bool> Delete(int customerId)
     {
-        Customer customer = await _repository.GetById(customerId);
+        Customer? customer = await _repository.GetById(customerId);
         if (customer is null) return false;
 
         if (await _repository.HasUnpaidFees(customerId))
@@ -73,7 +73,7 @@ public class CustomerService : ICustomerService
                 "The customer cannot be deleted because at least one of their loans has outstanding payments.");
         }
 
-        _repository.Remove(customer);
+        await _repository.Remove(customer);
         await _repository.SaveChanges();
 
         return true;

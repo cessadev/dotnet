@@ -5,8 +5,8 @@ namespace CarCredit.Application.Interfaces;
 
 public interface IFeeRepository
 {
-    Task<IEnumerable<Fee>> GetByCreditId(int creditId);
     Task<Fee?> GetById(int feeId);
+    Task<IEnumerable<Fee>> GetByCreditId(int creditId);
     Task SaveChanges();
     Task<CreditSummary?> GetSummary(int creditId);
     Task<IEnumerable<OverdueFee>> GetOverdue();

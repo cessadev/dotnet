@@ -19,13 +19,13 @@ public class FeeRepository : IFeeRepository
         _connectionString = config.GetConnectionString("DefaultConnection")!;
     }
 
+    public async Task<Fee?> GetById(int feeId) => await _db.Fees.FindAsync(feeId);
+
     public async Task<IEnumerable<Fee>> GetByCreditId(int creditId)
         => await _db.Fees
             .Where(f => f.CreditId == creditId)
             .OrderBy(f => f.NumberFee)
             .ToListAsync();
-
-    public async Task<Fee?> GetById(int feeId) => await _db.Fees.FindAsync(feeId);
 
     public async Task SaveChanges() => await _db.SaveChangesAsync();
 

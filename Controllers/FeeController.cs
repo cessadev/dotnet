@@ -18,7 +18,7 @@ public class FeeController : ControllerBase
     }
 
     [HttpGet("credit/{creditId}")]
-    public async Task<ActionResult<IEnumerable<FeeResponse>>> GetByCredit(int creditId)
+    public async Task<ActionResult<IEnumerable<FeeResponse>>> GetFeesByCredit(int creditId)
     {
         IEnumerable<FeeResponse> fees = await _feeService.GetByCreditId(creditId);
         return fees is null ? NotFound() : Ok(fees);
@@ -27,7 +27,7 @@ public class FeeController : ControllerBase
     [HttpGet("{creditId}/summary")]
     public async Task<ActionResult<CreditSummary>> GetSummaryByCredit(int creditId)
     {
-        CreditSummary summary = await _feeService.GetSummary(creditId);
+        CreditSummary? summary = await _feeService.GetSummary(creditId);
         return summary is null ? NotFound() : Ok(summary);
     }
 
@@ -43,7 +43,7 @@ public class FeeController : ControllerBase
         int feeId, 
         [FromBody] RegisterPaymentRequest request)
     {
-        FeeResponse fee = await _feeService.RegisterPayment(feeId, request.Amount);
+        FeeResponse? fee = await _feeService.RegisterPayment(feeId, request.Amount);
         return fee is null ? NotFound() : Ok(fee);
     }
 }

@@ -89,7 +89,7 @@ public class CreditService : ICreditService
 
     public async Task<CreditResponse?> GetById(int creditId)
     {
-        Credit credit = await _repository.GetById(creditId);
+        Credit? credit = await _repository.GetById(creditId);
         return credit is null ? null : new CreditResponse(
             credit.Id,
             credit.CustomerId,
@@ -101,7 +101,7 @@ public class CreditService : ICreditService
 
     public async Task<bool> Delete(int creditId)
     {
-        Credit credit = await _repository.GetById(creditId);
+        Credit? credit = await _repository.GetById(creditId);
         if (credit is null) return false;
 
         if (await _repository.HasUnpaidFees(creditId))

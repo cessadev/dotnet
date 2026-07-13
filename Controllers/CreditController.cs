@@ -22,7 +22,7 @@ public class CreditController : ControllerBase
     [HttpGet("{creditId}")]
     public async Task<ActionResult<CreditResponse>> GetById(int creditId)
     {
-        CreditResponse credit = await _creditService.GetById(creditId);
+        CreditResponse? credit = await _creditService.GetById(creditId);
         return credit is null ? NotFound() : Ok(credit);
     }
 

@@ -22,7 +22,7 @@ public class CustomerController : ControllerBase
     [HttpGet("{customerId}")]
     public async Task<ActionResult<CustomerResponse>> GetById(int customerId)
     {
-        CustomerResponse customer = await _customerService.GetById(customerId);
+        CustomerResponse? customer = await _customerService.GetById(customerId);
         return customer is null ? NotFound() : Ok(customer);
     }
 

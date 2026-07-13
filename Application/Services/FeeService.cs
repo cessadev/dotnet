@@ -14,11 +14,11 @@ public class FeeService : IFeeService
         _repository = _r;
     }
 
-    public async Task<IEnumerable<FeeResponse?>> GetByCreditId(int creditId)
+    public async Task<IEnumerable<FeeResponse>> GetByCreditId(int creditId)
     {
         IEnumerable<Fee> fees = await _repository.GetByCreditId(creditId);
         
-        return fees is null ? null : fees.Select(f => new FeeResponse(
+        return fees.Select(f => new FeeResponse(
             f.Id,
             f.CreditId,
             f.NumberFee,
