@@ -1,6 +1,7 @@
-using CarCredit.Interfaces;
-using CarCredit.Models;
 using Microsoft.AspNetCore.Mvc;
+using CarCredit.Application.Interfaces;
+using CarCredit.Application.DTOs.Requests;
+using CarCredit.Application.DTOs.Responses;
 
 namespace CarCredit.Controllers;
 
@@ -16,26 +17,27 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _customerService.GetAll());
+    public async Task<IActionResult<IEnumerable<CustomerResponse>>> GetAll() => Ok(await _customerService.GetAll());
 
     [HttpGet("{customerId}")]
-    public async Task<IActionResult> GetById(int customerId)
+    public async Task<IActionResult<CustomerResponse>> GetById(int customerId)
     {
-        var customer = await _customerService.GetById(customerId);
+        CustomerResponse customer = await _customerService.GetById(customerId);
         return customer is null ? NotFound() : Ok(customer);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateCustomerRequest request)
+    public async Task<IActionResult> Create(
+        [FromBody] CreateCustomerRequest request)
     {
-        var customer = await _customerService.Create(request);
+        CustomerResponse customer = await _customerService.Create(request);
         return CreatedAtAction(nameof(GetById), new { customerId = customer.Id }, customer);
     }
 
     [HttpDelete("{customerId}")]
     public async Task<IActionResult> Delete(int customerId)
     {
-        var deleted = await _customerService.Delete(customerId);
+        bool deleted = await _customerService.Delete(customerId);
         return deleted ? NoContent() : NotFound();
     }
 }

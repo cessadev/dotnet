@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using CarCredit.Models;
-using CarCredit.Interfaces;
+using CarCredit.Application.Interfaces;
+using CarCredit.Application.DTOs.Responses;
+using CarCredit.Application.DTOs.Requests;
 
 namespace CarCredit.Controllers;
 
@@ -16,12 +17,12 @@ public class CreditController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _creditService.GetAll());
+    public async Task<IActionResult<IEnumerable<CreditResponse>>> GetAllCredits() => Ok(await _creditService.GetAll());
 
     [HttpGet("{creditId}")]
-    public async Task<IActionResult> GetById(int creditId)
+    public async Task<IActionResult<CreditResponse>> GetById(int creditId)
     {
-        var credit = await _creditService.GetById(creditId);
+        CreditResponse credit = await _creditService.GetById(creditId);
         return credit is null ? NotFound() : Ok(credit);
     }
 
@@ -31,11 +32,12 @@ public class CreditController : ControllerBase
     /// <param name="request">Details of the loan to be created.</param>
     /// <returns>Credit created.</returns>
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateCreditRequest request)
+    public async Task<IActionResult> Create(
+        [FromBody] CreateCreditRequest request)
     {
         try
         {
-            var credit = await _creditService.Create(request);
+            CreditResponse credit = await _creditService.Create(request);
             return CreatedAtAction(nameof(GetById), new { creditId = credit.Id }, credit);
         }
         catch (ArgumentException ex)
@@ -53,7 +55,7 @@ public class CreditController : ControllerBase
     {
         try
         {
-            var deleted = await _creditService.Delete(creditId);
+            bool deleted = await _creditService.Delete(creditId);
             return deleted ? NoContent() : NotFound();
         }
         catch (InvalidOperationException ex)

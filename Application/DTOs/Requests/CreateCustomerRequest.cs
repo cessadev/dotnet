@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CarCredit.Application.DTOs;
+namespace CarCredit.Application.DTOs.Requests;
 
 public record CreateCustomerRequest(
     [Required]

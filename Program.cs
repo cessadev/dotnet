@@ -1,9 +1,10 @@
 using System.ComponentModel;
-using CarCredit.Data;
-using CarCredit.Interfaces;
-using CarCredit.Services;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
+using CarCredit.Application.Interfaces;
+using CarCredit.Application.Services;
+using CarCredit.Infrastructure.Persistence;
+using CarCredit.Infrastructure.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ICreditService, CreditService>();
 builder.Services.AddScoped<IFeeService, FeeService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+builder.Services.AddScoped<ICreditRepository, CreditRepository>();
+builder.Services.AddScoped<IFeeRepository, FeeRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 var app = builder.Build();
 

@@ -1,6 +1,6 @@
-namespace CarCredit.Application.DTOs;
+namespace CarCredit.Application.DTOs.Queries;
 
-public record CreditSummaryResponse(
+public record CreditSummary(
     int Id,
     string Customer,
     string Vehicle,

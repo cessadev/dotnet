@@ -1,4 +1,4 @@
-namespace CarCredit.Application.DTOs;
+namespace CarCredit.Application.DTOs.Requests;
 
 public record CreateCreditRequest(
     int CustomerId,

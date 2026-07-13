@@ -1,4 +1,5 @@
-using CarCredit.Application.DTOs;
+using CarCredit.Application.DTOs.Requests;
+using CarCredit.Application.DTOs.Responses;
 using CarCredit.Application.Interfaces;
 using CarCredit.Domain.Entities;
 
@@ -13,7 +14,7 @@ public class CreditService : ICreditService
         _repository = _r;
     }
 
-    public async Task<Credit> Create(CreateCreditRequest request)
+    public async Task<CreditResponse> Create(CreateCreditRequest request)
     {
         if (request.Fee <= 0)
             throw new ArgumentException(
@@ -23,7 +24,7 @@ public class CreditService : ICreditService
         if (!customer)
             throw new KeyNotFoundException($"Customer {request.CustomerId} not found.");
 
-        var credit = new Credit
+        Credit credit = new Credit
         {
             CustomerId = request.CustomerId,
             Vehicle = request.Vehicle,
@@ -34,7 +35,7 @@ public class CreditService : ICreditService
         decimal installment = Math.Floor(request.ValueCredit / request.Fee * 100) / 100;
         decimal remaining = request.ValueCredit;
 
-        var fees = new List<Fee>();
+        List<Fee> fees = new List<Fee>();
 
         for (int i = 1; i <= request.Fee; i++)
         {
@@ -60,18 +61,47 @@ public class CreditService : ICreditService
             });
         }
         
-        await _repository.AddCreditWithFees(credit, fees);
+        _repository.Add(credit);
+        _repository.AddFees(fees);
+        await _repository.SaveChanges();
 
-        return credit;
+        return new CreditResponse(
+            credit.Id,
+            credit.CustomerId,
+            credit.Vehicle,
+            credit.ValueCredit,
+            credit.Fee
+        );
     }
 
-    public async Task<IEnumerable<Credit>> GetAll() => await _repository.GetAll();
+    public async Task<IEnumerable<CreditResponse>> GetAll()
+    {
+        IEnumerable<Credit> credits = await _repository.GetAll();
 
-    public async Task<Credit?> GetById(int creditId) => await _repository.GetById(creditId);
+        return credits.Select(c => new CreditResponse(
+            c.Id,
+            c.CustomerId,
+            c.Vehicle,
+            c.ValueCredit,
+            c.Fee
+        ));
+    }
+
+    public async Task<CreditResponse?> GetById(int creditId)
+    {
+        Credit credit = await _repository.GetById(creditId);
+        return credit is null ? null : new CreditResponse(
+            credit.Id,
+            credit.CustomerId,
+            credit.Vehicle,
+            credit.ValueCredit,
+            credit.Fee
+        );
+    }
 
     public async Task<bool> Delete(int creditId)
     {
-        var credit = await _repository.GetById(creditId);
+        Credit credit = await _repository.GetById(creditId);
         if (credit is null) return false;
 
         if (await _repository.HasUnpaidFees(creditId))

@@ -17,13 +17,6 @@ public class CreditRepository : ICreditRepository
     }
 
     public async Task<bool> CustomerExists(int customerId) => await _db.Customers.AnyAsync(c => c.Id == customerId);
-    
-    public async Task AddCreditWithFees(Credit credit, IEnumerable<Fee> fees)
-    {
-        _db.Credits.Add(credit);
-        _db.Fees.AddRange(fees);
-        await _db.SaveChangesAsync();
-    }
 
     public async Task<bool> HasUnpaidFees(int creditId)
     {
@@ -37,6 +30,18 @@ public class CreditRepository : ICreditRepository
             .ToListAsync();
 
     public async Task<Credit?> GetById(int creditId) => await _db.Credits.FindAsync(creditId);
+
+    public Task AddFees(IEnumerable<Fee> fees)
+    {
+        _db.Fees.AddRange(fees);
+        return Task.CompletedTask;
+    }
+
+    public Task Add(Credit credit)
+    {
+        _db.Credits.Add(credit);
+        return Task.CompletedTask;
+    }
 
     public Task Remove(Credit credit)
     {

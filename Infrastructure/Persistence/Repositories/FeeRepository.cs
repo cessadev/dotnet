@@ -1,7 +1,7 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using CarCredit.Application.DTOs;
+using CarCredit.Application.DTOs.Queries;
 using CarCredit.Application.Interfaces;
 using CarCredit.Infrastructure.Persistence;
 using CarCredit.Domain.Entities;
@@ -29,7 +29,7 @@ public class FeeRepository : IFeeRepository
 
     public async Task SaveChanges() => await _db.SaveChangesAsync();
 
-    public async Task<CreditSummaryResponse?> GetSummary(int creditId)
+    public async Task<CreditSummary?> GetSummary(int creditId)
     {
         using var connection = new SqlConnection(_connectionString);
 
@@ -51,12 +51,12 @@ public class FeeRepository : IFeeRepository
             GROUP BY c.Id, cu.Name, cu.Lastname, c.Vehicle, c.Fee
             """;
 
-        return await connection.QuerySingleOrDefaultAsync<CreditSummaryResponse>(
+        return await connection.QuerySingleOrDefaultAsync<CreditSummary>(
             sql,
             new { CreditId = creditId });
     }
 
-    public async Task<IEnumerable<OverdueFeeResponse>> GetOverdue()
+    public async Task<IEnumerable<OverdueFee>> GetOverdue()
     {
         using var connection = new SqlConnection(_connectionString);
 
@@ -77,6 +77,6 @@ public class FeeRepository : IFeeRepository
             ORDER BY DaysOverdue DESC
             """;
         
-        return await connection.QueryAsync<OverdueFeeResponse>(sql);
+        return await connection.QueryAsync<OverdueFee>(sql);
     }
 }

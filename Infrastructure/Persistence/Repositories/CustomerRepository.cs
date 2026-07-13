@@ -28,7 +28,11 @@ public class CustomerRepository : ICustomerRepository
                 f.Credit.CustomerId == customerId);
     }
 
-    public Task Add(Customer customer) => _db.Customers.Add(customer);
+    public Task Add(Customer customer)
+    {
+        _db.Customers.Add(customer);
+        return Task.CompletedTask;
+    }
 
     public Task Remove(Customer customer)
     {
