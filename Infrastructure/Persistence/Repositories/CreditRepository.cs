@@ -8,12 +8,10 @@ namespace CarCredit.Infrastructure.Persistence.Repositories;
 public class CreditRepository : ICreditRepository
 {
     private readonly AppDbContext _db;
-    private readonly string _connectionString;
 
     public CreditRepository(AppDbContext _database, IConfiguration config)
     {
         _db = _database;
-        _connectionString = config.GetConnectionString("DefaultConnection")!;
     }
 
     public async Task<bool> CustomerExists(int customerId) => await _db.Customers.AnyAsync(c => c.Id == customerId);
