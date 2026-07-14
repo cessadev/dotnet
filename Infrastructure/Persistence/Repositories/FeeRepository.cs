@@ -1,4 +1,5 @@
 using Dapper;
+using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using CarCredit.Application.DTOs.Queries;
@@ -60,23 +61,12 @@ public class FeeRepository : IFeeRepository
     {
         using var connection = new SqlConnection(_connectionString);
 
-        var sql = """
-            SELECT
-                f.Id,
-                f.NumberFee,
-                f.ValueFee,
-                f.DateExpiration,
-                cu.Name + ' ' + cu.Lastname     AS Customer,
-                c.Vehicle,
-                DATEDIFF(DAY, f.DateExpiration, GETUTCDATE()) AS DaysOverdue
-            FROM Fees f
-            INNER JOIN Credits c ON c.Id = f.CreditId
-            INNER JOIN Customers cu ON cu.Id = c.CustomerId
-            WHERE f.Paid = 0
-              AND f.DateExpiration < GETUTCDATE()
-            ORDER BY DaysOverdue DESC
-            """;
-        
-        return await connection.QueryAsync<OverdueFee>(sql);
+        // Stored Procedure
+        IEnumerable<OverdueFee> result = await connection.QueryAsync<OverdueFee>(
+            "usp_GetOverdueFees",
+            commandType: CommandType.StoredProcedure
+        );
+
+        return result;
     }
 }

@@ -22,7 +22,7 @@ public class CreditService : ICreditService
 
         var customer = await _repository.CustomerExists(request.CustomerId);
         if (!customer)
-            throw new KeyNotFoundException($"Customer {request.CustomerId} not found.");
+            throw new KeyNotFoundException($"Customer with ID {request.CustomerId} not found.");
 
         Credit credit = new Credit
         {

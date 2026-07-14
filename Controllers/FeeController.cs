@@ -35,7 +35,7 @@ public class FeeController : ControllerBase
     public async Task<ActionResult<IEnumerable<OverdueFee>>> GetOverdueFees()
     {
         IEnumerable<OverdueFee> overdueFees = await _feeService.GetOverdue();
-        return overdueFees is null ? NotFound() : Ok(overdueFees);
+        return Ok(overdueFees);
     }
 
     [HttpPatch("{feeId}/pay")]
