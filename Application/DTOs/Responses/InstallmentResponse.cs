@@ -1,6 +1,6 @@
 namespace CarCredit.Application.DTOs.Responses;
 
-public record FeeResponse (
+public record InstallmentResponse(
     int Id,
     int CreditId,
     int NumberFee,

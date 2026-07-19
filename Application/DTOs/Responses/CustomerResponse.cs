@@ -1,6 +1,6 @@
 namespace CarCredit.Application.DTOs.Responses;
 
-public record CustomerResponse (
+public record CustomerResponse(
     int Id,
     string Name,
     string Lastname,

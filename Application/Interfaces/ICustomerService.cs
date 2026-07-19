@@ -6,7 +6,7 @@ namespace CarCredit.Application.Interfaces;
 public interface ICustomerService
 {
     Task<IEnumerable<CustomerResponse>> GetAll();
-    Task<CustomerResponse?> GetById(int creditId);
+    Task<CustomerResponse?> GetByDocumentNumber(int documentNumber);
     Task<CustomerResponse> Create(CreateCustomerRequest request);
-    Task<bool> Delete(int creditId);
+    Task<bool> Delete(int documentNumber);
 }

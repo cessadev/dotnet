@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CarCredit.Application.DTOs.Requests;
 
-public record CreateCreditRequest(
+public record CreateLoanRequest(
     [Range(1, int.MaxValue, ErrorMessage = "CustomerId must be greater than zero.")]
     int CustomerId,
 

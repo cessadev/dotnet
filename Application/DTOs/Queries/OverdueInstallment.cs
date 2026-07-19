@@ -1,6 +1,6 @@
 namespace CarCredit.Application.DTOs.Queries;
 
-public record OverdueFee(
+public record OverdueInstallment(
     int Id,
     int NumberFee,
     decimal ValueFee,
