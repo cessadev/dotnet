@@ -1,8 +1,14 @@
 using System.ComponentModel.DataAnnotations;
+using CarCredit.Domain.Enums;
 
 namespace CarCredit.Application.DTOs.Requests;
 
 public record CreateCustomerRequest(
+    [Required] EDocumentType DocumentType,
+
+    [Range(1, int.MaxValue, ErrorMessage = "DocumentNumber must be greater than zero.")]
+    int DocumentNumber,
+
     [Required]
     [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
     string Name,

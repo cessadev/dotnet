@@ -19,25 +19,31 @@ public class CustomerController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CustomerResponse>>> GetAll() => Ok(await _customerService.GetAll());
 
-    [HttpGet("{customerId}")]
-    public async Task<ActionResult<CustomerResponse>> GetById(int customerId)
+    [HttpGet("{documentNumber}")]
+    public async Task<ActionResult<CustomerResponse>> GetByDocumentNumber(int documentNumber)
     {
-        CustomerResponse? customer = await _customerService.GetById(customerId);
+        CustomerResponse? customer = await _customerService.GetByDocumentNumber(documentNumber);
         return customer is null ? NotFound() : Ok(customer);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] CreateCustomerRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateCustomerRequest request)
     {
         CustomerResponse customer = await _customerService.Create(request);
-        return CreatedAtAction(nameof(GetById), new { customerId = customer.Id }, customer);
+        return CreatedAtAction(nameof(GetByDocumentNumber), new { documentNumber = customer.DocumentNumber }, customer);
     }
 
-    [HttpDelete("{customerId}")]
-    public async Task<IActionResult> Delete(int customerId)
+    [HttpDelete("{documentNumber}")]
+    public async Task<IActionResult> Delete(int documentNumber)
     {
-        bool deleted = await _customerService.Delete(customerId);
-        return deleted ? NoContent() : NotFound();
+        try
+        {
+            bool deleted = await _customerService.Delete(documentNumber);
+            return deleted ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
     }
 }

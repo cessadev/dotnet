@@ -8,5 +8,5 @@ public interface ILoanService
     Task<LoanResponse> Create(CreateLoanRequest request);
     Task<IEnumerable<LoanResponse>> GetAll();
     Task<LoanResponse?> GetByReference(string reference);
-    Task<bool> Delete(int loanId);
+    Task<bool> Delete(string reference);
 }

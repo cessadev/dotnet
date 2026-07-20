@@ -1,11 +1,11 @@
 namespace CarCredit.Application.DTOs.Responses;
 
 public record InstallmentResponse(
-    int Id,
-    int CreditId,
-    int NumberFee,
-    decimal ValueFee,
-    decimal ValueFeePaid,
+    string LoanReference,
+    int Number,
+    string PaymentReference,
+    decimal Amount,
+    decimal AmountPaid,
     DateTime DateExpiration,
     DateTime? DatePayment,
     bool Paid

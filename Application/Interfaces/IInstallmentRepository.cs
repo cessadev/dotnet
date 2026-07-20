@@ -10,5 +10,6 @@ public interface IInstallmentRepository
     Task<LoanSummary?> GetSummaryByLoanReference(string loanReference);
     Task<IEnumerable<OverdueInstallment>> GetOverdueByLoanReference(string loanReference);
     Task<IEnumerable<OverdueInstallment>> GetAllOverdue();
+    Task AddPayment(Payment payment);
     Task SaveChanges();
 }

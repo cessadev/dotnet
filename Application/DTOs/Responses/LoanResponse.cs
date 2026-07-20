@@ -1,9 +1,12 @@
+using CarCredit.Domain.Enums;
+
 namespace CarCredit.Application.DTOs.Responses;
 
 public record LoanResponse(
-    int Id,
-    int CustomerId,
-    string Vehicle,
-    decimal ValueCredit,
-    int Fee
+    string Reference,
+    int CustomerDocumentNumber,
+    string VehicleIdentifier,
+    decimal Amount,
+    EInstallmentsTerm Installments,
+    DateTime DateCreation
 );

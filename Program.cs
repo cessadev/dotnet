@@ -29,13 +29,15 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<ICreditService, CreditService>();
-builder.Services.AddScoped<IFeeService, FeeService>();
+builder.Services.AddScoped<ILoanService, LoanService>();
+builder.Services.AddScoped<IInstallmentService, InstallmentService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
 
-builder.Services.AddScoped<ICreditRepository, CreditRepository>();
-builder.Services.AddScoped<IFeeRepository, FeeRepository>();
+builder.Services.AddScoped<ILoanRepository, LoanRepository>();
+builder.Services.AddScoped<IInstallmentRepository, InstallmentRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 
 var app = builder.Build();
 

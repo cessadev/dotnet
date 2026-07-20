@@ -1,19 +1,19 @@
 using System.ComponentModel.DataAnnotations;
+using CarCredit.Domain.Enums;
 
 namespace CarCredit.Application.DTOs.Requests;
 
 public record CreateLoanRequest(
-    [Range(1, int.MaxValue, ErrorMessage = "CustomerId must be greater than zero.")]
-    int CustomerId,
+    [Range(1, int.MaxValue, ErrorMessage = "CustomerDocumentNumber must be greater than zero.")]
+    int CustomerDocumentNumber,
 
     [Required]
-    [StringLength(100, ErrorMessage = "Vehicle cannot exceed 100 characters.")]
-    string Vehicle,
+    [StringLength(20, ErrorMessage = "VehicleIdentifier cannot exceed 20 characters.")]
+    string VehicleIdentifier,
 
     [Range(typeof(decimal), "0.01", "79228162514264337593543950335",
-        ErrorMessage = "ValueCredit must be greater than zero.")]
-    decimal ValueCredit,
+        ErrorMessage = "Amount must be greater than zero.")]
+    decimal Amount,
 
-    [Range(1, 36, ErrorMessage = "Fee must be between 1 and 36.")]
-    int Fee
+    [Required] EInstallmentsTerm Installments
 );
