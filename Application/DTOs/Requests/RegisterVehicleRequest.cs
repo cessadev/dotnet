@@ -3,7 +3,7 @@ using CarCredit.Domain.Enums;
 
 namespace CarCredit.Application.DTOs.Requests;
 
-public record CreateVehicleRequest(
+public record RegisterVehicleRequest(
     [Required]
     [StringLength(20, ErrorMessage = "Identifier cannot exceed 20 characters.")]
     string Identifier,

@@ -7,5 +7,5 @@ public interface IVehicleService
 {
     Task<IEnumerable<VehicleResponse>> GetAll();
     Task<VehicleResponse?> GetByIdentifier(string identifier);
-    Task<VehicleResponse> Create(CreateVehicleRequest request);
+    Task<VehicleResponse> Create(RegisterVehicleRequest request);
 }

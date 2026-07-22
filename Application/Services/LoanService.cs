@@ -24,11 +24,17 @@ public class LoanService : ILoanService
     public async Task<LoanResponse> Create(CreateLoanRequest request)
     {
         Customer? customer = await _customerRepository.GetByDocumentNumber(request.CustomerDocumentNumber)
-            ?? throw new KeyNotFoundException($"Customer with document number {request.CustomerDocumentNumber} not found.");
+            ?? throw new KeyNotFoundException(
+                $"Customer with document number {request.CustomerDocumentNumber} not found.");
 
         Vehicle? vehicle = await _vehicleRepository.GetByIdentifier(request.VehicleIdentifier)
-            ?? throw new KeyNotFoundException($"Vehicle with identifier {request.VehicleIdentifier} not found.");
+            ?? throw new KeyNotFoundException(
+                $"Vehicle with identifier {request.VehicleIdentifier} not found.");
 
+        if (request.Amount > vehicle.MarketValue)
+            throw new InvalidOperationException(
+                $"The loan amount cannot exceed the vehicle's market value ({vehicle.MarketValue:C}).");
+        
         string reference = $"LN-{Guid.NewGuid().ToString("N")[..10].ToUpper()}";
 
         Loan loan = new Loan

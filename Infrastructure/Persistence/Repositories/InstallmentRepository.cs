@@ -38,7 +38,6 @@ public class InstallmentRepository : IInstallmentRepository
 
         var sql = """
             SELECT
-                l.Id,
                 l.Reference,
                 cu.Name + ' ' + cu.Lastname AS Customer,
                 v.Identifier               AS Vehicle,
@@ -53,7 +52,7 @@ public class InstallmentRepository : IInstallmentRepository
             INNER JOIN Vehicles v   ON v.Id  = l.VehicleId
             INNER JOIN Installments i ON i.LoanId = l.Id
             WHERE l.Reference = @LoanReference
-            GROUP BY l.Id, l.Reference, cu.Name, cu.Lastname, v.Identifier
+            GROUP BY l.Reference, cu.Name, cu.Lastname, v.Identifier
             """;
 
         return await connection.QuerySingleOrDefaultAsync<LoanSummary>(
@@ -66,7 +65,7 @@ public class InstallmentRepository : IInstallmentRepository
 
         var sql = """
             SELECT
-                i.Id, l.Reference AS LoanReference, i.Number, i.Amount, i.DateExpiration,
+                l.Reference AS LoanReference, i.Number, i.Amount, i.DateExpiration,
                 cu.Name + ' ' + cu.Lastname AS Customer, v.Identifier AS Vehicle,
                 DATEDIFF(DAY, i.DateExpiration, GETUTCDATE()) AS DaysOverdue
             FROM Installments i

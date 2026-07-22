@@ -1,9 +1,9 @@
 namespace CarCredit.Application.DTOs.Queries;
 
 public record OverdueInstallment(
-    int Id,
-    int NumberFee,
-    decimal ValueFee,
+    string LoanReference,
+    int Number,
+    decimal Amount,
     DateTime DateExpiration,
     string Customer,
     string Vehicle,

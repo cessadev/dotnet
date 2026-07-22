@@ -1,12 +1,12 @@
 namespace CarCredit.Application.DTOs.Queries;
 
 public record LoanSummary(
-    int Id,
+    string Reference,
     string Customer,
     string Vehicle,
-    int TotalFees,
-    int FeesPaid,
-    int FeesOwed,
+    int TotalInstallments,
+    int InstallmentsPaid,
+    int InstallmentsOwed,
     decimal TotalValue,
     decimal TotalPaid,
     decimal TotalOwed

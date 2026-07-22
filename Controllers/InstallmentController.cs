@@ -41,7 +41,14 @@ public class InstallmentController : ControllerBase
         string paymentReference,
         [FromBody] RegisterPaymentRequest request)
     {
-        InstallmentResponse? installment = await _installmentService.RegisterPayment(paymentReference, request.Method, request.Amount);
-        return installment is null ? NotFound() : Ok(installment);
+        try
+        {
+            InstallmentResponse? installment = await _installmentService.RegisterPayment(paymentReference, request.Method, request.Amount);
+            return installment is null ? NotFound() : Ok(installment);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { ex.Message });
+        }
     }
 }

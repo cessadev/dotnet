@@ -27,7 +27,7 @@ public class VehicleController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateVehicleRequest request)
+    public async Task<IActionResult> Create([FromBody] RegisterVehicleRequest request)
     {
         VehicleResponse vehicle = await _vehicleService.Create(request);
         return CreatedAtAction(nameof(GetByIdentifier), new { identifier = vehicle.Identifier }, vehicle);

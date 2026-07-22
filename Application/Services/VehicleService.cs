@@ -23,10 +23,10 @@ public class VehicleService : IVehicleService
     public async Task<VehicleResponse?> GetByIdentifier(string identifier)
     {
         Vehicle? vehicle = await _vehicleRepository.GetByIdentifier(identifier);
-        return ToResponse(vehicle);
+        return vehicle is null ? null : ToResponse(vehicle);
     }
 
-    public async Task<VehicleResponse> Create(CreateVehicleRequest request)
+    public async Task<VehicleResponse> Create(RegisterVehicleRequest request)
     {
         Vehicle vehicle = new Vehicle
         {

@@ -43,6 +43,10 @@ public class LoanController : ControllerBase
         {
             return NotFound(new { ex.Message });
         }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { ex.Message });
+        }
     }
 
     [HttpDelete("{reference}")]

@@ -26,6 +26,14 @@ public class InstallmentService : IInstallmentService
         Installment? installment = await _installmentRepository.GetByPaymentReference(paymentReference);
         if (installment is null) return null;
 
+        if (installment.Paid)
+            throw new InvalidOperationException(
+                $"Installment {installment.Number} with payment reference {installment.PaymentReference} has already been paid.");
+
+        if (amount != installment.Amount)
+            throw new InvalidOperationException(
+                $"The payment amount ({amount:C}) does not match the installment amount ({installment.Amount:C}).");                
+
         Payment payment = new Payment
         {
             Number = $"PAY-{Guid.NewGuid().ToString("N")[..8].ToUpper()}",
