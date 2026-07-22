@@ -1,0 +1,12 @@
+bin/
+obj/
+.vs/
+.vscode/
+*.user
+.git/
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+car-credit.http
+README.md
