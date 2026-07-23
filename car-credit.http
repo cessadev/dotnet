@@ -15,77 +15,110 @@
 GET {{baseUrl}}/api/customer
 Accept: application/json
 
-### Get customer by ID
-GET {{baseUrl}}/api/customer/{customerId}
+### Get customer by document number
+GET {{baseUrl}}/api/customer/123456789
 Accept: application/json
 
 ### Create customer
+# documentType accepts: CC, CE, TI, PA, PPT, NIT
 POST {{baseUrl}}/api/customer
 Content-Type: application/json
 
 {
+  "documentType": "CC",
+  "documentNumber": 123456789,
   "name": "Carlos",
   "lastname": "Ruiz",
   "age": 35,
   "address": "Calle 50 #23-10, Barranquilla"
 }
 
-### Delete customer
-DELETE {{baseUrl}}/api/customer/{customerId}
+### Delete customer (fails with 409 if any of their loans has unpaid installments)
+DELETE {{baseUrl}}/api/customer/123456789
 
 
 # ============================================================
-# CREDITS
+# VEHICLES
 # ============================================================
 
-### Get all credits
-GET {{baseUrl}}/api/credit
+### Get all vehicles
+GET {{baseUrl}}/api/vehicle
 Accept: application/json
 
-### Get credit by ID (includes customer)
-GET {{baseUrl}}/api/credit/{creditId}
+### Get vehicle by identifier (plate)
+GET {{baseUrl}}/api/vehicle/MK-1299
 Accept: application/json
 
-### Create credit (auto-generates fees)
-# Requires an existing customerId
-POST {{baseUrl}}/api/credit
+### Create vehicle
+# brand accepts: Toyota, Chevrolet, Renault, Mazda, Nissan, Kia, Hyundai, Ford, Volkswagen, Suzuki
+POST {{baseUrl}}/api/vehicle
 Content-Type: application/json
 
 {
-  "customerId": 1,
-  "vehicle": "Volvo FH16",
-  "valueCredit": 36000000,
-  "fee": 3
+  "identifier": "MK-1299",
+  "brand": "Toyota",
+  "model": "Hilux Cargo",
+  "marketValue": 125000000,
+  "year": 2025
 }
 
-### Delete credit (cascades to fees)
-DELETE {{baseUrl}}/api/credit/{creditId}
-
 
 # ============================================================
-# FEES
+# LOANS
 # ============================================================
 
-### Get fees by credit ID (EF Core)
-# Returns all installments for a given credit
-GET {{baseUrl}}/api/fee/credit/{creditId}
+### Get all loans
+GET {{baseUrl}}/api/loan
 Accept: application/json
 
-### Get credit summary by credit ID (Dapper)
-# Returns aggregated data: total fees, paid, owed, amounts
-GET {{baseUrl}}/api/fee/{creditId}/summary
+### Get loan by reference
+GET {{baseUrl}}/api/loan/LN-XXXXXXXXXX
 Accept: application/json
 
-### Get overdue fees (Dapper)
-# Returns unpaid fees past their expiration date
-GET {{baseUrl}}/api/fee/overdue
-Accept: application/json
-
-### Register fee payment
-# Body: decimal value paid
-PATCH {{baseUrl}}/api/fee/{feeId}/pay
+### Create loan (auto-generates installments)
+# installments accepts: Months6, Months12, Months18, Months24, Months30, Months36, Months42, Months48
+# Amount cannot exceed the vehicle's MarketValue (409 Conflict otherwise)
+POST {{baseUrl}}/api/loan
 Content-Type: application/json
 
 {
-  "Amount": 3333333.33
+  "customerDocumentNumber": 123456789,
+  "vehicleIdentifier": "MK-1299",
+  "amount": 100000000,
+  "installments": "Months12"
+}
+
+### Delete loan (fails with 409 if it has unpaid installments)
+DELETE {{baseUrl}}/api/loan/7
+
+
+# ============================================================
+# INSTALLMENTS
+# ============================================================
+
+### Get installments by loan reference
+GET {{baseUrl}}/api/installment/loan/LN-XXXXXXXXXX
+Accept: application/json
+
+### Get loan summary (Dapper — aggregated totals)
+GET {{baseUrl}}/api/installment/loan/LN-XXXXXXXXXX/summary
+Accept: application/json
+
+### Get overdue installments for a specific loan (Dapper)
+GET {{baseUrl}}/api/installment/loan/LN-XXXXXXXXXX/overdue
+Accept: application/json
+
+### Get all overdue installments across all loans (Stored Procedure via Dapper)
+GET {{baseUrl}}/api/installment/overdue
+Accept: application/json
+
+### Register installment payment
+# Strict model: amount must exactly match the installment's Amount.
+# method accepts: Cash, BankTransfer, DebitCard, CreditCard, PSE, Nequi, Daviplata
+PATCH {{baseUrl}}/api/installment/LN-XXXXXXXXXX-01/pay
+Content-Type: application/json
+
+{
+  "amount": 8333333.33,
+  "method": "PSE"
 }

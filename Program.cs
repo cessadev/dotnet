@@ -1,13 +1,21 @@
 using System.ComponentModel;
-using CarCredit.Data;
-using CarCredit.Interfaces;
-using CarCredit.Services;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
+using CarCredit.Application.Interfaces;
+using CarCredit.Application.Services;
+using CarCredit.Infrastructure.Persistence;
+using CarCredit.Infrastructure.Persistence.Repositories;
+using CarCredit.Application.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+       options.JsonSerializerOptions.Converters.Add(new DocumentTypeJsonConverter());
+       options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -28,9 +36,15 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<ICreditService, CreditService>();
-builder.Services.AddScoped<IFeeService, FeeService>();
+builder.Services.AddScoped<ILoanService, LoanService>();
+builder.Services.AddScoped<IInstallmentService, InstallmentService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
+
+builder.Services.AddScoped<ILoanRepository, LoanRepository>();
+builder.Services.AddScoped<IInstallmentRepository, InstallmentRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 
 var app = builder.Build();
 
