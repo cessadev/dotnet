@@ -1,0 +1,30 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "car-credit", "car-credit\car-credit.csproj", "{088B21DE-2133-F2FE-CD12-2B32F5BFEE6D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "car-credit-tests", "car-credit-tests\car-credit-tests.csproj", "{DD630A5F-FFA1-4E74-87FE-AE2ED18A100A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{088B21DE-2133-F2FE-CD12-2B32F5BFEE6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{088B21DE-2133-F2FE-CD12-2B32F5BFEE6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{088B21DE-2133-F2FE-CD12-2B32F5BFEE6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{088B21DE-2133-F2FE-CD12-2B32F5BFEE6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD630A5F-FFA1-4E74-87FE-AE2ED18A100A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD630A5F-FFA1-4E74-87FE-AE2ED18A100A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD630A5F-FFA1-4E74-87FE-AE2ED18A100A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD630A5F-FFA1-4E74-87FE-AE2ED18A100A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0801D0FA-01DD-495D-91EC-C6B23F50E511}
+	EndGlobalSection
+EndGlobal
