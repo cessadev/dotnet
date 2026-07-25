@@ -60,6 +60,11 @@ public class CustomerService : ICustomerService
     }
 
     private static CustomerResponse ToResponse(Customer c) => new(
-        c.DocumentType, c.DocumentNumber, c.Name, c.Lastname, c.Age, c.Address
+        c.DocumentType,
+        c.DocumentNumber,
+        c.Name,
+        c.Lastname,
+        c.Age,
+        c.Address
     );
 }

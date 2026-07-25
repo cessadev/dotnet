@@ -64,7 +64,13 @@ public class InstallmentService : IInstallmentService
         => await _installmentRepository.GetAllOverdue();
 
     private static InstallmentResponse ToResponse(Installment i) => new(
-        i.Loan.Reference, i.Number, i.PaymentReference, i.Amount, i.AmountPaid,
-        i.DateExpiration, i.DatePayment, i.Paid
+        i.Loan.Reference,
+        i.Number,
+        i.PaymentReference,
+        i.Amount,
+        i.AmountPaid,
+        i.DateExpiration,
+        i.DatePayment,
+        i.Paid
     );
 }

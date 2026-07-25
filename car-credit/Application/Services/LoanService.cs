@@ -104,6 +104,11 @@ public class LoanService : ILoanService
     }
 
     private static LoanResponse ToResponse(Loan l) => new(
-        l.Reference, l.Customer.DocumentNumber, l.Vehicle.Identifier, l.Amount, l.Installments, l.DateCreation
+        l.Reference,
+        l.Customer.DocumentNumber,
+        l.Vehicle.Identifier,
+        l.Amount,
+        l.Installments,
+        l.DateCreation
     );
 }
