@@ -6,6 +6,8 @@ using CarCredit.Domain.Entities;
 using CarCredit.Domain.Enums;
 using CarCredit.Application.DTOs.Responses;
 
+namespace CarCreditTests.Application.Services;
+
 public class RegisterPaymentTests
 {
     // [Installment not found]

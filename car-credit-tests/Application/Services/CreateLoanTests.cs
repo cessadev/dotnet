@@ -160,7 +160,7 @@ public class CreateLoanTests
 
     // [Valid request + rounding]
     [Fact]
-    public async void Create_ValidRequest_DistributesRoundingRemainderCorrectly()
+    public async Task Create_ValidRequest_DistributesRoundingRemainderCorrectly()
     {
         // Arrange
         var mockLoanRepository = new Mock<ILoanRepository>();
