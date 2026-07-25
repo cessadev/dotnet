@@ -44,6 +44,10 @@ public class VehicleService : IVehicleService
     }
 
     private static VehicleResponse ToResponse(Vehicle v) => new(
-        v.Identifier, v.Brand, v.Model, v.MarketValue, v.Year
+        v.Identifier,
+        v.Brand,
+        v.Model,
+        v.MarketValue,
+        v.Year
     );
 }
