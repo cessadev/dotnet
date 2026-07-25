@@ -142,7 +142,7 @@ public class RegisterPaymentTests
 
     // [The amount does not match the installment]
     [Fact]
-    public async Task RegisterPayment_PartialPayment_ThrowsInvalidOperationException()
+    public async Task RegisterPayment_PaymentAmountDoesNotMatchInstallment_ThrowsInvalidOperationException()
     {
         // Arrange
         var mockInstallmentRepository = new Mock<IInstallmentRepository>();
