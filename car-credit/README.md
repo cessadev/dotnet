@@ -131,10 +131,11 @@ Flujo típico de prueba:
 | Loan | `GET` | `/api/loan` |
 | Loan | `GET` | `/api/loan/{reference}` |
 | Loan | `POST` | `/api/loan` |
-| Loan | `DELETE` | `/api/loan/{id}` |
+| Loan | `DELETE` | `/api/loan/{reference}` |
 | Installment | `GET` | `/api/installment/loan/{loanReference}` |
 | Installment | `GET` | `/api/installment/loan/{loanReference}/summary` |
 | Installment | `GET` | `/api/installment/overdue` |
+| Installment | `GET` | `/api/installment/loan/{loanReference}/overdue` |
 | Installment | `PATCH` | `/api/installment/{paymentReference}/pay` |
 
 ---
