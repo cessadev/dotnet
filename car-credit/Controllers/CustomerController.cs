@@ -43,7 +43,7 @@ public class CustomerController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return Conflict(ex.Message);
+            return Conflict(new { ex.Message });
         }
     }
 }
