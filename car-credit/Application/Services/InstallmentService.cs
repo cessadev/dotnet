@@ -28,11 +28,11 @@ public class InstallmentService : IInstallmentService
 
         if (installment.Paid)
             throw new InvalidOperationException(
-                $"Installment {installment.Number} with payment reference {installment.PaymentReference} has already been paid.");
+                $"La cuota {installment.Number} con referencia de pago {installment.PaymentReference} ya ha sido pagada.");
 
         if (amount != installment.Amount)
             throw new InvalidOperationException(
-                $"The payment amount ({amount:C}) does not match the installment amount ({installment.Amount:C}).");                
+                $"El monto a pagar ({amount:C}) no corresponde al monto de la cuota ({installment.Amount:C}).");
 
         Payment payment = new Payment
         {

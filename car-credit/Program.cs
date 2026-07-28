@@ -7,6 +7,7 @@ using CarCredit.Application.Services;
 using CarCredit.Infrastructure.Persistence;
 using CarCredit.Infrastructure.Persistence.Repositories;
 using CarCredit.Application.Converters;
+using CarCredit.Infrastructure.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,9 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<IInstallmentService, InstallmentService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -58,6 +62,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors("AllowAngularDev");
+app.UseExceptionHandler();
 
 // Middleware Swagger
 app.UseSwagger();

@@ -51,7 +51,7 @@ public class CustomerService : ICustomerService
 
         if (await _customerRepository.HasUnpaidInstallments(documentNumber))
             throw new InvalidOperationException(
-                "The customer cannot be deleted because at least one of their loans has outstanding installments.");
+                "No se puede eliminar al cliente porque al menos uno de sus préstamos tiene cuotas pendientes de pago.");
 
         await _customerRepository.Remove(customer);
         await _customerRepository.SaveChanges();

@@ -25,15 +25,15 @@ public class LoanService : ILoanService
     {
         Customer? customer = await _customerRepository.GetByDocumentNumber(request.CustomerDocumentNumber)
             ?? throw new KeyNotFoundException(
-                $"Customer with document number {request.CustomerDocumentNumber} not found.");
+                $"El cliente con número de documento {request.CustomerDocumentNumber} no fue encontrado.");
 
         Vehicle? vehicle = await _vehicleRepository.GetByIdentifier(request.VehicleIdentifier)
             ?? throw new KeyNotFoundException(
-                $"Vehicle with identifier {request.VehicleIdentifier} not found.");
+                $"El vehículo con identificador/placa {request.VehicleIdentifier} no fue encontrado.");
 
         if (request.Amount > vehicle.MarketValue)
             throw new InvalidOperationException(
-                $"The loan amount cannot exceed the vehicle's market value ({vehicle.MarketValue:C}).");
+                $"El monto del préstamo no puede exceder el valor de mercado del vehículo ({vehicle.MarketValue:C}).");
         
         string reference = $"LN-{Guid.NewGuid().ToString("N")[..10].ToUpper()}";
 
@@ -95,7 +95,7 @@ public class LoanService : ILoanService
 
         if (await _loanRepository.HasUnpaidInstallments(reference))
             throw new InvalidOperationException(
-                "The loan cannot be deleted because it has unpaid installments.");
+                "El préstamo registrado no puede ser eliminado porque existen cuotas pendientes por pagar.");
 
         await _loanRepository.Remove(loan);
         await _loanRepository.SaveChanges();
