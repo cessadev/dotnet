@@ -33,6 +33,13 @@ public class CustomerController : ControllerBase
         return CreatedAtAction(nameof(GetByDocumentNumber), new { documentNumber = customer.DocumentNumber }, customer);
     }
 
+    [HttpPut("{documentNumber}")]
+    public async Task<ActionResult<CustomerResponse>> Update(int documentNumber, [FromBody] UpdateCustomerRequest request)
+    {
+        CustomerResponse? customer = await _customerService.Update(documentNumber, request);
+        return customer is null ? NotFound() : Ok(customer);
+    }
+
     [HttpDelete("{documentNumber}")]
     public async Task<IActionResult> Delete(int documentNumber)
     {

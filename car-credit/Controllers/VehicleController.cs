@@ -32,4 +32,11 @@ public class VehicleController : ControllerBase
         VehicleResponse vehicle = await _vehicleService.Create(request);
         return CreatedAtAction(nameof(GetByIdentifier), new { identifier = vehicle.Identifier }, vehicle);
     }
+
+    [HttpPut("{identifier}")]
+    public async Task<ActionResult<VehicleResponse>> Update(string identifier, [FromBody] UpdateVehicleRequest request)
+    {
+        VehicleResponse? vehicle = await _vehicleService.Update(identifier, request);
+        return vehicle is null ? NotFound() : Ok(vehicle);
+    }
 }

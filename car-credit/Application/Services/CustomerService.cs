@@ -44,6 +44,21 @@ public class CustomerService : ICustomerService
         return ToResponse(customer);
     }
 
+    public async Task<CustomerResponse?> Update(int documentNumber, UpdateCustomerRequest request)
+    {
+        Customer? customer = await _customerRepository.GetByDocumentNumber(documentNumber);
+        if (customer is null) return null;
+
+        customer.Name = request.Name;
+        customer.Lastname = request.Lastname;
+        customer.Age = request.Age;
+        customer.Address = request.Address;
+
+        await _customerRepository.SaveChanges();
+
+        return ToResponse(customer);
+    }
+
     public async Task<bool> Delete(int documentNumber)
     {
         Customer? customer = await _customerRepository.GetByDocumentNumber(documentNumber);
