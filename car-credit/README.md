@@ -124,19 +124,27 @@ Flujo típico de prueba:
 | Customer | `GET` | `/api/customer` |
 | Customer | `GET` | `/api/customer/{documentNumber}` |
 | Customer | `POST` | `/api/customer` |
+| Customer | `PUT` | `/api/customer/{documentNumber}` |
 | Customer | `DELETE` | `/api/customer/{documentNumber}` |
 | Vehicle | `GET` | `/api/vehicle` |
 | Vehicle | `GET` | `/api/vehicle/{identifier}` |
+| Vehicle | `GET` | `/api/vehicle/{identifier}/eligibility` |
 | Vehicle | `POST` | `/api/vehicle` |
+| Vehicle | `PUT` | `/api/vehicle/{identifier}` |
 | Loan | `GET` | `/api/loan` |
 | Loan | `GET` | `/api/loan/{reference}` |
+| Loan | `GET` | `/api/loan/customer?documentType=&documentNumber=` |
 | Loan | `POST` | `/api/loan` |
+| Loan | `POST` | `/api/loan/simulate` |
 | Loan | `DELETE` | `/api/loan/{reference}` |
 | Installment | `GET` | `/api/installment/loan/{loanReference}` |
 | Installment | `GET` | `/api/installment/loan/{loanReference}/summary` |
 | Installment | `GET` | `/api/installment/overdue` |
 | Installment | `GET` | `/api/installment/loan/{loanReference}/overdue` |
 | Installment | `PATCH` | `/api/installment/{paymentReference}/pay` |
+| Payment | `GET` | `/api/payment/installment/{paymentReference}` |
+| Payment | `GET` | `/api/payment/loan/{loanReference}` |
+| Dashboard | `GET` | `/api/dashboard/summary` |
 
 ---
 
