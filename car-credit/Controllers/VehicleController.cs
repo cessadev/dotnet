@@ -39,4 +39,15 @@ public class VehicleController : ControllerBase
         VehicleResponse? vehicle = await _vehicleService.Update(identifier, request);
         return vehicle is null ? NotFound() : Ok(vehicle);
     }
+
+    /// <summary>
+    /// Check whether a vehicle is eligible to be financed with a new loan.
+    /// </summary>
+    /// <param name="identifier">Identifier/plate of the vehicle.</param>
+    [HttpGet("{identifier}/eligibility")]
+    public async Task<ActionResult<VehicleEligibilityResponse>> CheckEligibility(string identifier)
+    {
+        VehicleEligibilityResponse? eligibility = await _vehicleService.CheckEligibility(identifier);
+        return eligibility is null ? NotFound() : Ok(eligibility);
+    }
 }

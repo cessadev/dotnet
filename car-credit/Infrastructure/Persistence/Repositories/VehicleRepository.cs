@@ -17,6 +17,12 @@ public class VehicleRepository : IVehicleRepository
 
     public async Task<Vehicle?> GetByIdentifier(string identifier)
         => await _db.Vehicles.FirstOrDefaultAsync(v => v.Identifier == identifier);
+    
+    public async Task<string?> GetActiveLoanReference(string identifier)
+        => await _db.Installments
+            .Where(i => i.Loan.Vehicle.Identifier == identifier && !i.Paid)
+            .Select(i => i.Loan.Reference)
+            .FirstOrDefaultAsync();
 
     public Task Add(Vehicle vehicle)
     {

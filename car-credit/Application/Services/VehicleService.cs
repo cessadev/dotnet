@@ -58,6 +58,22 @@ public class VehicleService : IVehicleService
         return ToResponse(vehicle);
     }
 
+    public async Task<VehicleEligibilityResponse?> CheckEligibility(string identifier)
+    {
+        Vehicle? vehicle = await _vehicleRepository.GetByIdentifier(identifier);
+        if (vehicle is null) return null;
+
+        string? activeLoanReference = await _vehicleRepository.GetActiveLoanReference(identifier);
+
+        return activeLoanReference is null
+            ? new VehicleEligibilityResponse(vehicle.Identifier, true, null, "El vehículo está disponible.")
+            : new VehicleEligibilityResponse(
+                vehicle.Identifier,
+                false,
+                activeLoanReference,
+                "El vehículo ya tiene un crédito activo con cuotas pendientes de pago.");
+    }
+
     private static VehicleResponse ToResponse(Vehicle v) => new(
         v.Identifier,
         v.Brand,
