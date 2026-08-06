@@ -3,6 +3,8 @@ using CarCredit.Application.Interfaces;
 using CarCredit.Application.DTOs.Responses;
 using CarCredit.Application.DTOs.Requests;
 using CarCredit.Application.DTOs.Queries;
+using CarCredit.Application.Converters;
+using CarCredit.Domain.Enums;
 
 namespace CarCredit.Controllers;
 
@@ -25,6 +27,30 @@ public class LoanController : ControllerBase
     {
         LoanResponse? loan = await _loanService.GetByReference(reference);
         return loan is null ? NotFound() : Ok(loan);
+    }
+
+    /// <summary>
+    /// Get the loans associated with a customer, identified by document type and document number.
+    /// </summary>
+    [HttpGet("customer")]
+    public async Task<ActionResult<IEnumerable<LoanResponse>>> GetByCustomer(
+        [FromQuery] CustomerLoansRequest request)
+    {
+        if (!DocumentTypeCodes.TryParse(request.DocumentType, out EDocumentType documentType))
+            return BadRequest(new
+            {
+                Message = $"'{request.DocumentType}' no es un tipo de documento válido. Se espera: {string.Join(", ", DocumentTypeCodes.FromCode.Keys)}."
+            });
+
+        try
+        {
+            IEnumerable<LoanResponse> loans = await _loanService.GetByCustomer(documentType, request.DocumentNumber);
+            return Ok(loans);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { ex.Message });
+        }
     }
 
     /// <summary>

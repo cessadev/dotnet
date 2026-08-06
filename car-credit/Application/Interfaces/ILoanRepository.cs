@@ -6,6 +6,7 @@ public interface ILoanRepository
 {
     Task<bool> HasUnpaidInstallments(string reference);
     Task<Loan?> GetByReference(string reference);
+    Task<IEnumerable<Loan>> GetByCustomerDocumentNumber(int documentNumber);
     Task AddInstallments(IEnumerable<Installment> installments);
     Task<IEnumerable<Loan>> GetAll();
     Task Add(Loan loan);
