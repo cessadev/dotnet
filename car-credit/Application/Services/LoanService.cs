@@ -120,6 +120,20 @@ public class LoanService : ILoanService
         return loan is null ? null : ToResponse(loan);
     }
 
+    public async Task<IEnumerable<LoanResponse>> GetByCustomer(EDocumentType documentType, int documentNumber)
+    {
+        Customer? customer = await _customerRepository.GetByDocumentNumber(documentNumber)
+            ?? throw new KeyNotFoundException(
+                $"El cliente con número de documento {documentNumber} no fue encontrado.");
+
+        if (customer.DocumentType != documentType)
+            throw new KeyNotFoundException(
+                $"El cliente con número de documento {documentNumber} no corresponde al tipo de documento indicado.");
+
+        IEnumerable<Loan> loans = await _loanRepository.GetByCustomerDocumentNumber(documentNumber);
+        return loans.Select(ToResponse);
+    }
+
     public async Task<bool> Delete(string reference)
     {
         Loan? loan = await _loanRepository.GetByReference(reference);

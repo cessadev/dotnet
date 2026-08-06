@@ -33,6 +33,18 @@ Content-Type: application/json
   "address": "Calle 50 #23-10, Barranquilla"
 }
 
+### Update customer
+# documentType and documentNumber are NOT editable (business key)
+PUT {{baseUrl}}/api/customer/123456789
+Content-Type: application/json
+
+{
+  "name": "Carlos",
+  "lastname": "Ruiz Gómez",
+  "age": 36,
+  "address": "Calle 72 #10-45, Barranquilla"
+}
+
 ### Delete customer (fails with 409 if any of their loans has unpaid installments)
 DELETE {{baseUrl}}/api/customer/123456789
 
@@ -62,6 +74,22 @@ Content-Type: application/json
   "year": 2025
 }
 
+### Update vehicle
+# identifier is NOT editable (business key)
+PUT {{baseUrl}}/api/vehicle/MK-1299
+Content-Type: application/json
+
+{
+  "brand": "Toyota",
+  "model": "Hilux Cargo 4x4",
+  "marketValue": 130000000,
+  "year": 2025
+}
+
+### Check vehicle eligibility (can it be financed with a new loan?)
+GET {{baseUrl}}/api/vehicle/MK-1299/eligibility
+Accept: application/json
+
 
 # ============================================================
 # LOANS
@@ -75,9 +103,26 @@ Accept: application/json
 GET {{baseUrl}}/api/loan/LN-XXXXXXXXXX
 Accept: application/json
 
+### Get loans by customer (documentType + documentNumber)
+GET {{baseUrl}}/api/loan/customer?documentType=CC&documentNumber=123456789
+Accept: application/json
+
+### Simulate a loan's repayment schedule (does not persist anything)
+# vehicleIdentifier is optional — if provided, validates against its market value
+# installments accepts: Months6, Months12, Months18, Months24, Months30, Months36, Months42, Months48
+POST {{baseUrl}}/api/loan/simulate
+Content-Type: application/json
+
+{
+  "amount": 100000000,
+  "installments": "Months12",
+  "vehicleIdentifier": "MK-1299"
+}
+
 ### Create loan (auto-generates installments)
 # installments accepts: Months6, Months12, Months18, Months24, Months30, Months36, Months42, Months48
 # Amount cannot exceed the vehicle's MarketValue (409 Conflict otherwise)
+# Fails with 409 if the vehicle already has an active loan with unpaid installments
 POST {{baseUrl}}/api/loan
 Content-Type: application/json
 
@@ -122,3 +167,25 @@ Content-Type: application/json
   "amount": 8333333.33,
   "method": "PSE"
 }
+
+
+# ============================================================
+# PAYMENTS
+# ============================================================
+
+### Get payment history of a specific installment
+GET {{baseUrl}}/api/payment/installment/LN-XXXXXXXXXX-01
+Accept: application/json
+
+### Get full payment history of a loan, across all its installments
+GET {{baseUrl}}/api/payment/loan/LN-XXXXXXXXXX
+Accept: application/json
+
+
+# ============================================================
+# DASHBOARD
+# ============================================================
+
+### Get portfolio summary (Dapper — aggregated KPIs)
+GET {{baseUrl}}/api/dashboard/summary
+Accept: application/json

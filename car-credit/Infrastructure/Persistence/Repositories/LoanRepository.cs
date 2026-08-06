@@ -23,6 +23,14 @@ public class LoanRepository : ILoanRepository
             .Include(l => l.Vehicle)
             .FirstOrDefaultAsync(l => l.Reference == reference);
 
+    public async Task<IEnumerable<Loan>> GetByCustomerDocumentNumber(int documentNumber)
+        => await _db.Loans
+            .Include(l => l.Customer)
+            .Include(l => l.Vehicle)
+            .Where(l => l.Customer.DocumentNumber == documentNumber)
+            .OrderByDescending(l => l.DateCreation)
+            .ToListAsync();
+
     public Task AddInstallments(IEnumerable<Installment> installments)
     {
         _db.Installments.AddRange(installments);
