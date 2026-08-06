@@ -1,7 +1,9 @@
+using CarCredit.Application.DTOs.Queries;
 using CarCredit.Application.DTOs.Requests;
 using CarCredit.Application.DTOs.Responses;
 using CarCredit.Application.Interfaces;
 using CarCredit.Domain.Entities;
+using CarCredit.Domain.Enums;
 
 namespace CarCredit.Application.Services;
 
@@ -30,6 +32,11 @@ public class LoanService : ILoanService
         Vehicle? vehicle = await _vehicleRepository.GetByIdentifier(request.VehicleIdentifier)
             ?? throw new KeyNotFoundException(
                 $"El vehículo con identificador/placa {request.VehicleIdentifier} no fue encontrado.");
+        
+        string? activeLoanReference = await _vehicleRepository.GetActiveLoanReference(vehicle.Identifier);
+        if (activeLoanReference is not null)
+            throw new InvalidOperationException(
+                $"El vehículo {vehicle.Identifier} ya tiene un crédito activo ({activeLoanReference}) con cuotas pendientes de pago.");
 
         if (request.Amount > vehicle.MarketValue)
             throw new InvalidOperationException(
@@ -76,6 +83,31 @@ public class LoanService : ILoanService
         return ToResponse(loan);
     }
 
+    public async Task<LoanSimulation> Simulate(SimulateLoanRequest request)
+    {
+        if (!string.IsNullOrWhiteSpace(request.VehicleIdentifier))
+        {
+            Vehicle? vehicle = await _vehicleRepository.GetByIdentifier(request.VehicleIdentifier)
+                ?? throw new KeyNotFoundException(
+                    $"El vehículo con identificador/placa {request.VehicleIdentifier} no fue encontrado.");
+
+            if (request.Amount > vehicle.MarketValue)
+                throw new InvalidOperationException(
+                    $"El monto simulado no puede exceder el valor de mercado del vehículo ({vehicle.MarketValue:C}).");
+        }
+
+        List<(int Number, decimal Amount, DateTime DateExpiration)> schedule =
+            GenerateSchedule(request.Amount, request.Installments);
+
+        return new LoanSimulation(
+            request.Amount,
+            request.Installments,
+            schedule[0].Amount,
+            schedule.Sum(s => s.Amount),
+            schedule.Select(s => new SimulatedInstallment(s.Number, s.Amount, s.DateExpiration)).ToList()
+        );
+    }
+
     public async Task<IEnumerable<LoanResponse>> GetAll()
     {
         IEnumerable<Loan> loans = await _loanRepository.GetAll();
@@ -101,6 +133,26 @@ public class LoanService : ILoanService
         await _loanRepository.SaveChanges();
 
         return true;
+    }
+
+    private static List<(int Number, decimal Amount, DateTime DateExpiration)> GenerateSchedule(
+        decimal amount, EInstallmentsTerm term)
+    {
+        int totalInstallments = (int)term;
+        decimal installmentValue = Math.Floor(amount / totalInstallments * 100) / 100;
+        decimal remaining = amount;
+
+        List<(int, decimal, DateTime)> schedule = new();
+
+        for (int i = 1; i <= totalInstallments; i++)
+        {
+            decimal value = i == totalInstallments ? remaining : installmentValue;
+            if (i != totalInstallments) remaining -= value;
+
+            schedule.Add((i, value, DateTime.UtcNow.AddMonths(i)));
+        }
+
+        return schedule;
     }
 
     private static LoanResponse ToResponse(Loan l) => new(

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using CarCredit.Application.Interfaces;
 using CarCredit.Application.DTOs.Responses;
 using CarCredit.Application.DTOs.Requests;
+using CarCredit.Application.DTOs.Queries;
 
 namespace CarCredit.Controllers;
 
@@ -38,6 +39,28 @@ public class LoanController : ControllerBase
         {
             LoanResponse loan = await _loanService.Create(request);
             return CreatedAtAction(nameof(GetByReference), new { reference = loan.Reference }, loan);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Simulate a credit's repayment schedule without persisting anything.
+    /// </summary>
+    /// <param name="request">Amount, term and optionally a vehicle to validate against its market value.</param>
+    [HttpPost("simulate")]
+    public async Task<ActionResult<LoanSimulation>> Simulate([FromBody] SimulateLoanRequest request)
+    {
+        try
+        {
+            LoanSimulation simulation = await _loanService.Simulate(request);
+            return Ok(simulation);
         }
         catch (KeyNotFoundException ex)
         {
