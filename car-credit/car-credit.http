@@ -86,10 +86,6 @@ Content-Type: application/json
   "year": 2025
 }
 
-### Check vehicle eligibility (can it be financed with a new loan?)
-GET {{baseUrl}}/api/vehicle/MK-1299/eligibility
-Accept: application/json
-
 
 # ============================================================
 # LOANS
