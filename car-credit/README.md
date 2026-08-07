@@ -128,7 +128,6 @@ Flujo típico de prueba:
 | Customer | `DELETE` | `/api/customer/{documentNumber}` |
 | Vehicle | `GET` | `/api/vehicle` |
 | Vehicle | `GET` | `/api/vehicle/{identifier}` |
-| Vehicle | `GET` | `/api/vehicle/{identifier}/eligibility` |
 | Vehicle | `POST` | `/api/vehicle` |
 | Vehicle | `PUT` | `/api/vehicle/{identifier}` |
 | Loan | `GET` | `/api/loan` |

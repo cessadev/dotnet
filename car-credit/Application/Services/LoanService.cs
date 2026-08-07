@@ -31,12 +31,7 @@ public class LoanService : ILoanService
 
         Vehicle? vehicle = await _vehicleRepository.GetByIdentifier(request.VehicleIdentifier)
             ?? throw new KeyNotFoundException(
-                $"El vehículo con identificador/placa {request.VehicleIdentifier} no fue encontrado.");
-        
-        string? activeLoanReference = await _vehicleRepository.GetActiveLoanReference(vehicle.Identifier);
-        if (activeLoanReference is not null)
-            throw new InvalidOperationException(
-                $"El vehículo {vehicle.Identifier} ya tiene un crédito activo ({activeLoanReference}) con cuotas pendientes de pago.");
+                $"El vehículo con identificador {request.VehicleIdentifier} no fue encontrado.");
 
         if (request.Amount > vehicle.MarketValue)
             throw new InvalidOperationException(
@@ -89,7 +84,7 @@ public class LoanService : ILoanService
         {
             Vehicle? vehicle = await _vehicleRepository.GetByIdentifier(request.VehicleIdentifier)
                 ?? throw new KeyNotFoundException(
-                    $"El vehículo con identificador/placa {request.VehicleIdentifier} no fue encontrado.");
+                    $"El vehículo con identificador {request.VehicleIdentifier} no fue encontrado.");
 
             if (request.Amount > vehicle.MarketValue)
                 throw new InvalidOperationException(
