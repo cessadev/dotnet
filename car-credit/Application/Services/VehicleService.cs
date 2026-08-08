@@ -58,6 +58,21 @@ public class VehicleService : IVehicleService
         return ToResponse(vehicle);
     }
 
+    public async Task<bool> Delete(string identifier)
+    {
+        Vehicle? vehicle = await _vehicleRepository.GetByIdentifier(identifier);
+        if (vehicle is null) return false;
+
+        if(await _vehicleRepository.HasLoans(identifier))
+            throw new InvalidOperationException(
+                "Este vehículo no puede ser eliminado ya que está asociado a préstamos vigentes.");
+
+        await _vehicleRepository.Remove(vehicle);
+        await _vehicleRepository.SaveChanges();
+
+        return true;
+    }
+
     private static VehicleResponse ToResponse(Vehicle v) => new(
         v.Identifier,
         v.Brand,

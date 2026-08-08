@@ -33,6 +33,20 @@ public class VehicleController : ControllerBase
         return CreatedAtAction(nameof(GetByIdentifier), new { identifier = vehicle.Identifier }, vehicle);
     }
 
+    [HttpDelete("{identifier}")]
+    public async Task<IActionResult> Delete(string identifier)
+    {
+        try
+        {
+            bool deleted = await _vehicleService.Delete(identifier);
+            return deleted ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { ex.Message });   
+        }
+    }
+
     [HttpPut("{identifier}")]
     public async Task<ActionResult<VehicleResponse>> Update(string identifier, [FromBody] UpdateVehicleRequest request)
     {
