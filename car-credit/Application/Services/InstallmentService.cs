@@ -30,23 +30,26 @@ public class InstallmentService : IInstallmentService
             throw new InvalidOperationException(
                 $"La cuota {installment.Number} con referencia de pago {installment.PaymentReference} ya ha sido pagada.");
 
-        if (amount != installment.Amount)
+        decimal roundedAmount = Math.Round(amount, 2, MidpointRounding.AwayFromZero);
+        decimal remainingBalance = Math.Round(installment.Amount - installment.AmountPaid, 2, MidpointRounding.AwayFromZero);
+
+        if (roundedAmount > remainingBalance)
             throw new InvalidOperationException(
-                $"El monto a pagar ({amount:C}) no corresponde al monto de la cuota ({installment.Amount:C}).");
+                $"El monto a abonar ({roundedAmount:C}) supera el saldo pendiente de la cuota ({remainingBalance:C}).");
 
         Payment payment = new Payment
         {
             Number = $"PAY-{Guid.NewGuid().ToString("N")[..8].ToUpper()}",
-            Amount = amount,
+            Amount = roundedAmount,
             Method = method,
             ReferencePayment = paymentReference,
             Date = DateTime.UtcNow,
             InstallmentId = installment.Id
         };
 
-        installment.AmountPaid = amount;
+        installment.AmountPaid += roundedAmount;
         installment.DatePayment = DateTime.UtcNow;
-        installment.Paid = true;
+        installment.Paid = installment.AmountPaid >= installment.Amount;
 
         await _installmentRepository.AddPayment(payment);
         await _installmentRepository.SaveChanges();

@@ -142,20 +142,14 @@ public class RegisterPaymentTests
         );
     }
 
-    // [The amount does not match the installment]
+    // [Partial payment / abono]
     [Fact]
-    public async Task RegisterPayment_PaymentAmountDoesNotMatchInstallment_ThrowsInvalidOperationException()
+    public async Task RegisterPayment_PartialAmount_RegistersAbonoAndKeepsInstallmentUnpaid()
     {
-        // Arrange
         var mockInstallmentRepository = new Mock<IInstallmentRepository>();
-
         const string paymentReference = "LN-ABC1234567-01";
 
-        Loan existingLoan = new Loan
-        {
-            Id = 1,
-            Reference = "LN-ABC1234567"
-        };
+        Loan existingLoan = new Loan { Id = 1, Reference = "LN-ABC1234567" };
 
         Installment existingInstallment = new Installment
         {
@@ -173,38 +167,138 @@ public class RegisterPaymentTests
         mockInstallmentRepository
             .Setup(r => r.GetByPaymentReference(paymentReference))
             .ReturnsAsync(existingInstallment);
+        mockInstallmentRepository.Setup(r => r.AddPayment(It.IsAny<Payment>())).Returns(Task.CompletedTask);
+        mockInstallmentRepository.Setup(r => r.SaveChanges()).Returns(Task.CompletedTask);
 
-        InstallmentService service = new InstallmentService(
-            mockInstallmentRepository.Object
-        );
+        InstallmentService service = new InstallmentService(mockInstallmentRepository.Object);
+
+        // Act
+        InstallmentResponse? result = await service.RegisterPayment(paymentReference, EPaymentMethod.Cash, 500_000m);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(500_000m, existingInstallment.AmountPaid);
+        Assert.False(existingInstallment.Paid);
+        Assert.NotNull(existingInstallment.DatePayment);
+
+        mockInstallmentRepository.Verify(r => r.AddPayment(It.IsAny<Payment>()), Times.Once);
+        mockInstallmentRepository.Verify(r => r.SaveChanges(), Times.Once);
+    }
+
+    // [Second abono completes the installment]
+    [Fact]
+    public async Task RegisterPayment_SecondAbonoCoversRemainingBalance_MarksInstallmentAsPaid()
+    {
+        var mockInstallmentRepository = new Mock<IInstallmentRepository>();
+        const string paymentReference = "LN-ABC1234567-01";
+
+        Loan existingLoan = new Loan { Id = 1, Reference = "LN-ABC1234567" };
+
+        Installment existingInstallment = new Installment
+        {
+            Id = 1,
+            Number = 1,
+            PaymentReference = paymentReference,
+            Amount = 833_333.33m,
+            AmountPaid = 500_000m,
+            DateExpiration = DateTime.UtcNow.AddMonths(1),
+            DatePayment = DateTime.UtcNow.AddDays(-1),
+            Paid = false,
+            Loan = existingLoan
+        };
+
+        mockInstallmentRepository
+            .Setup(r => r.GetByPaymentReference(paymentReference))
+            .ReturnsAsync(existingInstallment);
+        mockInstallmentRepository.Setup(r => r.AddPayment(It.IsAny<Payment>())).Returns(Task.CompletedTask);
+        mockInstallmentRepository.Setup(r => r.SaveChanges()).Returns(Task.CompletedTask);
+
+        InstallmentService service = new InstallmentService(mockInstallmentRepository.Object);
+
+        // Act
+        InstallmentResponse? result = await service.RegisterPayment(paymentReference, EPaymentMethod.Cash, 333_333.33m);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(833_333.33m, existingInstallment.AmountPaid);
+        Assert.True(existingInstallment.Paid);
+    }
+
+    // [Overpayment blocked]
+    [Fact]
+    public async Task RegisterPayment_AmountExceedsRemainingBalance_ThrowsInvalidOperationException()
+    {
+        var mockInstallmentRepository = new Mock<IInstallmentRepository>();
+        const string paymentReference = "LN-ABC1234567-01";
+
+        Loan existingLoan = new Loan { Id = 1, Reference = "LN-ABC1234567" };
+
+        Installment existingInstallment = new Installment
+        {
+            Id = 1,
+            Number = 1,
+            PaymentReference = paymentReference,
+            Amount = 833_333.33m,
+            AmountPaid = 500_000m,
+            DateExpiration = DateTime.UtcNow.AddMonths(1),
+            DatePayment = DateTime.UtcNow.AddDays(-1),
+            Paid = false,
+            Loan = existingLoan
+        };
+
+        mockInstallmentRepository
+            .Setup(r => r.GetByPaymentReference(paymentReference))
+            .ReturnsAsync(existingInstallment);
+
+        InstallmentService service = new InstallmentService(mockInstallmentRepository.Object);
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(
-            () => service.RegisterPayment(
-                paymentReference,
-                EPaymentMethod.Cash,
-                500_000m
-            )
+            () => service.RegisterPayment(paymentReference, EPaymentMethod.Cash, 400_000m)
         );
+
+        Assert.Equal(500_000m, existingInstallment.AmountPaid);
+        Assert.False(existingInstallment.Paid);
+
+        mockInstallmentRepository.Verify(r => r.AddPayment(It.IsAny<Payment>()), Times.Never);
+        mockInstallmentRepository.Verify(r => r.SaveChanges(), Times.Never);
+    }
+
+    [Fact]
+    public async Task RegisterPayment_AmountWithFloatingPointNoiseEqualsRemainingBalance_MarksInstallmentAsPaid()
+    {
+        var mockInstallmentRepository = new Mock<IInstallmentRepository>();
+        const string paymentReference = "LN-ABC1234567-01";
+
+        Loan existingLoan = new Loan { Id = 1, Reference = "LN-ABC1234567" };
+
+        Installment existingInstallment = new Installment
+        {
+            Id = 1,
+            Number = 1,
+            PaymentReference = paymentReference,
+            Amount = 833_333.33m,
+            AmountPaid = 755_555.56m,
+            DateExpiration = DateTime.UtcNow.AddMonths(1),
+            DatePayment = DateTime.UtcNow.AddDays(-1),
+            Paid = false,
+            Loan = existingLoan
+        };
+
+        mockInstallmentRepository
+            .Setup(r => r.GetByPaymentReference(paymentReference))
+            .ReturnsAsync(existingInstallment);
+        mockInstallmentRepository.Setup(r => r.AddPayment(It.IsAny<Payment>())).Returns(Task.CompletedTask);
+        mockInstallmentRepository.Setup(r => r.SaveChanges()).Returns(Task.CompletedTask);
+
+        InstallmentService service = new InstallmentService(mockInstallmentRepository.Object);
+
+        // Act
+        InstallmentResponse? result = await service.RegisterPayment(paymentReference, EPaymentMethod.Cash, 77_777.7700000001m);
 
         // Assert
-        Assert.Equal(0m, existingInstallment.AmountPaid);
-        Assert.False(existingInstallment.Paid);
-        Assert.Null(existingInstallment.DatePayment);
-
-        mockInstallmentRepository.Verify(
-            r => r.GetByPaymentReference(paymentReference),
-            Times.Once
-        );
-
-        mockInstallmentRepository.Verify(
-            r => r.AddPayment(It.IsAny<Payment>()),
-            Times.Never
-        );
-
-        mockInstallmentRepository.Verify(
-            r => r.SaveChanges(),
-            Times.Never
-        );
+        Assert.NotNull(result);
+        Assert.Equal(833_333.33m, existingInstallment.AmountPaid);
+        Assert.True(existingInstallment.Paid);
     }
 }
