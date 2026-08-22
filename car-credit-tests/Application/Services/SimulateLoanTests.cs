@@ -39,7 +39,7 @@ public class SimulateLoanTests
         Assert.Equal(10_000_000m, result.Amount);
         Assert.Equal(EInstallmentsTerm.Months12, result.Installments);
         Assert.Equal(12, result.Schedule.Count());
-        Assert.Equal(10_000_000m, result.TotalToPay);
+        Assert.Equal(10_280_000m, result.TotalToPay);
 
         mockVehicleRepository.Verify(
             r => r.GetByIdentifier(It.IsAny<string>()),
@@ -119,7 +119,7 @@ public class SimulateLoanTests
         );
     }
 
-    // [Valid request + rounding]
+    // [Valid request + rounding, with interest applied]
     [Fact]
     public async Task Simulate_ValidRequest_DistributesRoundingRemainderCorrectly()
     {
@@ -147,16 +147,47 @@ public class SimulateLoanTests
         List<SimulatedInstallment> schedule = result.Schedule.ToList();
 
         Assert.Equal(12, schedule.Count);
-        Assert.Equal(10_000_000m, schedule.Sum(i => i.Amount));
-        Assert.Equal(833_333.33m, result.InstallmentValue);
+        Assert.Equal(10_280_000m, schedule.Sum(i => i.Amount));
+        Assert.Equal(856_666.66m, result.InstallmentValue);
 
         Assert.All(
             schedule.Take(11),
-            installment => Assert.Equal(833_333.33m, installment.Amount)
+            installment => Assert.Equal(856_666.66m, installment.Amount)
         );
 
-        Assert.Equal(833_333.37m, schedule[11].Amount);
-        Assert.Equal(10_000_000m, result.TotalToPay);
+        Assert.Equal(856_666.74m, schedule[11].Amount);
+        Assert.Equal(10_280_000m, result.TotalToPay);
+    }
+
+    // [Interest breakdown is exposed for transparency]
+    [Fact]
+    public async Task Simulate_ValidRequest_ExposesInterestRateAndAmountSeparately()
+    {
+        // Arrange
+        var mockLoanRepository = new Mock<ILoanRepository>();
+        var mockCustomerRepository = new Mock<ICustomerRepository>();
+        var mockVehicleRepository = new Mock<IVehicleRepository>();
+
+        LoanService service = new LoanService(
+            mockLoanRepository.Object,
+            mockCustomerRepository.Object,
+            mockVehicleRepository.Object
+        );
+
+        SimulateLoanRequest request = new SimulateLoanRequest(
+            Amount: 10_000_000m,
+            Installments: EInstallmentsTerm.Months12,
+            VehicleIdentifier: null
+        );
+
+        // Act
+        LoanSimulation result = await service.Simulate(request);
+
+        // Assert
+        Assert.Equal(0.028m, result.InterestRate);
+        Assert.Equal(280_000m, result.InterestAmount);
+        Assert.Equal(10_280_000m, result.TotalAmount);
+        Assert.Equal(10_000_000m, result.Amount); // principal untouched
     }
 
     // [Verify that the number of installments is correct]

@@ -22,11 +22,11 @@ public class DashboardRepository : IDashboardRepository
             WITH LoanStatus AS (
                 SELECT
                     l.Id,
-                    l.Amount,
+                    l.TotalAmount AS Amount, -- principal + interest: reflects the real value of the operation
                     CASE WHEN SUM(CASE WHEN i.Paid = 0 THEN 1 ELSE 0 END) = 0 THEN 1 ELSE 0 END AS IsFullyPaid
                 FROM Loans l
                 INNER JOIN Installments i ON i.LoanId = l.Id
-                GROUP BY l.Id, l.Amount
+                GROUP BY l.Id, l.TotalAmount
             ),
             Totals AS (
                 SELECT

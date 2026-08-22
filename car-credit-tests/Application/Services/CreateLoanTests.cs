@@ -158,7 +158,7 @@ public class CreateLoanTests
         );
     }
 
-    // [Valid request + rounding]
+    // [Valid request + rounding, with interest applied]
     [Fact]
     public async Task Create_ValidRequest_DistributesRoundingRemainderCorrectly()
     {
@@ -212,6 +212,7 @@ public class CreateLoanTests
             mockVehicleRepository.Object
         );
 
+        // 10_000_000 at 12 months (2.8%) => interest 280_000 => total 10_280_000
         CreateLoanRequest request = new CreateLoanRequest(
             CustomerDocumentNumber: existingCustomer.DocumentNumber,
             VehicleIdentifier: existingVehicle.Identifier,
@@ -227,14 +228,149 @@ public class CreateLoanTests
         var list = capturedInstallments!.ToList();
 
         Assert.Equal(12, list.Count);
-        Assert.Equal(10_000_000m, list.Sum(i => i.Amount));
-        
+        Assert.Equal(10_280_000m, list.Sum(i => i.Amount));
+
         Assert.All(
             list.Take(11),
-            installment => Assert.Equal(833_333.33m, installment.Amount)
+            installment => Assert.Equal(856_666.66m, installment.Amount)
         );
 
-        Assert.Equal(833_333.37m, list[11].Amount);
+        Assert.Equal(856_666.74m, list[11].Amount);
+    }
+
+    // [Interest rate and total amount stored on the loan]
+    [Fact]
+    public async Task Create_ValidRequest_StoresInterestRateAndTotalAmountOnLoan()
+    {
+        // Arrange
+        var mockLoanRepository = new Mock<ILoanRepository>();
+        var mockCustomerRepository = new Mock<ICustomerRepository>();
+        var mockVehicleRepository = new Mock<IVehicleRepository>();
+
+        Customer existingCustomer = new Customer
+        {
+            Id = 1,
+            DocumentType = EDocumentType.CedulaCiudadania,
+            DocumentNumber = 123456789,
+            Name = "Michael",
+            Lastname = "Olise",
+            Age = 25,
+            Address = "CL 105E 41T, Paris"
+        };
+
+        Vehicle existingVehicle = new Vehicle
+        {
+            Id = 1,
+            Identifier = "MK-1299",
+            Brand = EVehicleBrand.Toyota,
+            Model = "Passenger Transportation",
+            MarketValue = 50_000_000m,
+            Year = 2025
+        };
+
+        mockCustomerRepository
+            .Setup(r => r.GetByDocumentNumber(existingCustomer.DocumentNumber))
+            .ReturnsAsync(existingCustomer);
+
+        mockVehicleRepository
+            .Setup(r => r.GetByIdentifier(existingVehicle.Identifier))
+            .ReturnsAsync(existingVehicle);
+
+        mockLoanRepository.Setup(r => r.Add(It.IsAny<Loan>())).Returns(Task.CompletedTask);
+        mockLoanRepository.Setup(r => r.AddInstallments(It.IsAny<IEnumerable<Installment>>())).Returns(Task.CompletedTask);
+        mockLoanRepository.Setup(r => r.SaveChanges()).Returns(Task.CompletedTask);
+
+        LoanService service = new LoanService(
+            mockLoanRepository.Object,
+            mockCustomerRepository.Object,
+            mockVehicleRepository.Object
+        );
+
+        CreateLoanRequest request = new CreateLoanRequest(
+            CustomerDocumentNumber: existingCustomer.DocumentNumber,
+            VehicleIdentifier: existingVehicle.Identifier,
+            Amount: 10_000_000m,
+            Installments: EInstallmentsTerm.Months12
+        );
+
+        // Act
+        LoanResponse result = await service.Create(request);
+
+        // Assert
+        Assert.Equal(10_000_000m, result.Amount);
+        Assert.Equal(0.028m, result.InterestRate);
+        Assert.Equal(10_280_000m, result.TotalAmount);
+    }
+
+    // [Every term maps to its configured interest rate]
+    [Theory]
+    [InlineData(EInstallmentsTerm.Months6, 0.015)]
+    [InlineData(EInstallmentsTerm.Months12, 0.028)]
+    [InlineData(EInstallmentsTerm.Months18, 0.042)]
+    [InlineData(EInstallmentsTerm.Months24, 0.068)]
+    [InlineData(EInstallmentsTerm.Months30, 0.082)]
+    [InlineData(EInstallmentsTerm.Months36, 0.115)]
+    [InlineData(EInstallmentsTerm.Months42, 0.154)]
+    [InlineData(EInstallmentsTerm.Months48, 0.183)]
+    public async Task Create_EachInstallmentTerm_AppliesConfiguredInterestRate(
+        EInstallmentsTerm term, double expectedRate)
+    {
+        // Arrange
+        var mockLoanRepository = new Mock<ILoanRepository>();
+        var mockCustomerRepository = new Mock<ICustomerRepository>();
+        var mockVehicleRepository = new Mock<IVehicleRepository>();
+
+        Customer existingCustomer = new Customer
+        {
+            Id = 1,
+            DocumentType = EDocumentType.CedulaCiudadania,
+            DocumentNumber = 123456789,
+            Name = "Michael",
+            Lastname = "Olise",
+            Age = 25,
+            Address = "CL 105E 41T, Paris"
+        };
+
+        Vehicle existingVehicle = new Vehicle
+        {
+            Id = 1,
+            Identifier = "MK-1299",
+            Brand = EVehicleBrand.Toyota,
+            Model = "Passenger Transportation",
+            MarketValue = 50_000_000m,
+            Year = 2025
+        };
+
+        mockCustomerRepository
+            .Setup(r => r.GetByDocumentNumber(existingCustomer.DocumentNumber))
+            .ReturnsAsync(existingCustomer);
+
+        mockVehicleRepository
+            .Setup(r => r.GetByIdentifier(existingVehicle.Identifier))
+            .ReturnsAsync(existingVehicle);
+
+        mockLoanRepository.Setup(r => r.Add(It.IsAny<Loan>())).Returns(Task.CompletedTask);
+        mockLoanRepository.Setup(r => r.AddInstallments(It.IsAny<IEnumerable<Installment>>())).Returns(Task.CompletedTask);
+        mockLoanRepository.Setup(r => r.SaveChanges()).Returns(Task.CompletedTask);
+
+        LoanService service = new LoanService(
+            mockLoanRepository.Object,
+            mockCustomerRepository.Object,
+            mockVehicleRepository.Object
+        );
+
+        CreateLoanRequest request = new CreateLoanRequest(
+            CustomerDocumentNumber: existingCustomer.DocumentNumber,
+            VehicleIdentifier: existingVehicle.Identifier,
+            Amount: 10_000_000m,
+            Installments: term
+        );
+
+        // Act
+        LoanResponse result = await service.Create(request);
+
+        // Assert
+        Assert.Equal((decimal)expectedRate, result.InterestRate);
     }
 
     // [Loan amount exceeds the value of the vehicle]
