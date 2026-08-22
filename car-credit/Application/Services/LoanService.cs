@@ -2,6 +2,7 @@ using CarCredit.Application.DTOs.Queries;
 using CarCredit.Application.DTOs.Requests;
 using CarCredit.Application.DTOs.Responses;
 using CarCredit.Application.Interfaces;
+using CarCredit.Domain.Constants;
 using CarCredit.Domain.Entities;
 using CarCredit.Domain.Enums;
 
@@ -36,8 +37,12 @@ public class LoanService : ILoanService
         if (request.Amount > vehicle.MarketValue)
             throw new InvalidOperationException(
                 $"El monto del préstamo no puede exceder el valor de mercado del vehículo ({vehicle.MarketValue:C}).");
-        
+
         string reference = $"LN-{Guid.NewGuid().ToString("N")[..10].ToUpper()}";
+
+        decimal interestRate = InterestRates.For(request.Installments);
+        decimal interestAmount = Math.Round(request.Amount * interestRate, 2, MidpointRounding.AwayFromZero);
+        decimal totalAmount = request.Amount + interestAmount;
 
         Loan loan = new Loan
         {
@@ -47,29 +52,22 @@ public class LoanService : ILoanService
             VehicleId = vehicle.Id,
             Vehicle = vehicle,
             Amount = request.Amount,
+            InterestRate = interestRate,
+            TotalAmount = totalAmount,
             Installments = request.Installments
         };
 
-        int totalInstallments = (int)request.Installments;
-        decimal installmentValue = Math.Floor(request.Amount / totalInstallments * 100) / 100;
-        decimal remaining = request.Amount;
+        List<(int Number, decimal Amount, DateTime DateExpiration)> schedule =
+            GenerateSchedule(totalAmount, request.Installments);
 
-        List<Installment> installments = new List<Installment>();
-
-        for (int i = 1; i <= totalInstallments; i++)
+        List<Installment> installments = schedule.Select(s => new Installment
         {
-            decimal value = i == totalInstallments ? remaining : installmentValue;
-            if (i != totalInstallments) remaining -= value;
-
-            installments.Add(new Installment
-            {
-                Loan = loan,
-                Number = i,
-                PaymentReference = $"{reference}-{i:D2}",
-                Amount = value,
-                DateExpiration = DateTime.UtcNow.AddMonths(i)
-            });
-        }
+            Loan = loan,
+            Number = s.Number,
+            PaymentReference = $"{reference}-{s.Number:D2}",
+            Amount = s.Amount,
+            DateExpiration = s.DateExpiration
+        }).ToList();
 
         await _loanRepository.Add(loan);
         await _loanRepository.AddInstallments(installments);
@@ -91,12 +89,19 @@ public class LoanService : ILoanService
                     $"El monto simulado no puede exceder el valor de mercado del vehículo ({vehicle.MarketValue:C}).");
         }
 
+        decimal interestRate = InterestRates.For(request.Installments);
+        decimal interestAmount = Math.Round(request.Amount * interestRate, 2, MidpointRounding.AwayFromZero);
+        decimal totalAmount = request.Amount + interestAmount;
+
         List<(int Number, decimal Amount, DateTime DateExpiration)> schedule =
-            GenerateSchedule(request.Amount, request.Installments);
+            GenerateSchedule(totalAmount, request.Installments);
 
         return new LoanSimulation(
             request.Amount,
             request.Installments,
+            interestRate,
+            interestAmount,
+            totalAmount,
             schedule[0].Amount,
             schedule.Sum(s => s.Amount),
             schedule.Select(s => new SimulatedInstallment(s.Number, s.Amount, s.DateExpiration)).ToList()
@@ -169,6 +174,8 @@ public class LoanService : ILoanService
         l.Customer.DocumentNumber,
         l.Vehicle.Identifier,
         l.Amount,
+        l.InterestRate,
+        l.TotalAmount,
         l.Installments,
         l.DateCreation
     );

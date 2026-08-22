@@ -7,6 +7,8 @@ public record LoanResponse(
     int CustomerDocumentNumber,
     string VehicleIdentifier,
     decimal Amount,
+    decimal InterestRate,
+    decimal TotalAmount,
     EInstallmentsTerm Installments,
     DateTime DateCreation
 );
